@@ -1,0 +1,27 @@
+# ---- Converted from your own copy of Castle Crashers: never commit or share these ----
+assets/
+generated/
+nitrofiles/
+*.nds
+.game-install/
+releases/
+trailer/
+
+# ---- Fetched by the setup (see NOTICE.md): never commit ----
+tools/vendor/
+.tools/
+
+# ---- Build output ----
+build/
+logs/
+flashlib/
+*.elf
+*.map
+*.exe
+__pycache__/
+
+# ---- Saves and logs ----
+*.sav
+*.sav.tmp
+*.sav.bak
+*.log

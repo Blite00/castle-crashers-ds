@@ -1,0 +1,9 @@
+BLOCKSDS ?= /opt/wonderful/thirdparty/blocksds/core
+SOURCEDIRS := arm7/source
+LIBS := -ldswifi7 -lmm7 -lnds7
+LIBDIRS := $(BLOCKSDS)/libs/dswifi $(BLOCKSDS)/libs/maxmod
+ifeq ($(LOCAL_RADIO_ONLY),1)
+CFLAGS += -DLOCAL_RADIO_ONLY
+LDFLAGS += -Wl,--wrap=Wifi_TWL_Init,--wrap=Wifi_TWL_Deinit,--wrap=Wifi_TWL_Start,--wrap=Wifi_TWL_Stop,--wrap=Wifi_TWL_Update,--wrap=Wifi_TWL_SetupFilterMode
+endif
+include $(BLOCKSDS)/sys/default_makefiles/rom_arm9arm7/Makefile.arm7

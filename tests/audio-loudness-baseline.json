@@ -1,0 +1,206 @@
+{
+  "audio_arena": {
+    "bytes": 231556,
+    "peak_dbfs": -1.767,
+    "rms_dbfs": -15.344,
+    "full_scale_samples": 0
+  },
+  "audio_arrow": {
+    "bytes": 1864,
+    "peak_dbfs": -1.286,
+    "rms_dbfs": -5.648,
+    "full_scale_samples": 0
+  },
+  "audio_barracks": {
+    "bytes": 21472,
+    "peak_dbfs": -1.273,
+    "rms_dbfs": -12.728,
+    "full_scale_samples": 0
+  },
+  "audio_block": {
+    "bytes": 4092,
+    "peak_dbfs": -1.146,
+    "rms_dbfs": -18.607,
+    "full_scale_samples": 0
+  },
+  "audio_campaign": {
+    "bytes": 335848,
+    "peak_dbfs": -1.109,
+    "rms_dbfs": -14.419,
+    "full_scale_samples": 0
+  },
+  "audio_hit": {
+    "bytes": 3348,
+    "peak_dbfs": -1.296,
+    "rms_dbfs": -15.178,
+    "full_scale_samples": 0
+  },
+  "audio_magic_blue": {
+    "bytes": 12264,
+    "peak_dbfs": -1.258,
+    "rms_dbfs": -21.658,
+    "full_scale_samples": 0
+  },
+  "audio_magic_green": {
+    "bytes": 13008,
+    "peak_dbfs": -1.033,
+    "rms_dbfs": -14.931,
+    "full_scale_samples": 0
+  },
+  "audio_magic_orange": {
+    "bytes": 10036,
+    "peak_dbfs": -1.014,
+    "rms_dbfs": -16.649,
+    "full_scale_samples": 0
+  },
+  "audio_magic_red": {
+    "bytes": 10036,
+    "peak_dbfs": -1.513,
+    "rms_dbfs": -20.134,
+    "full_scale_samples": 0
+  },
+  "audio_menu": {
+    "bytes": 307440,
+    "peak_dbfs": -1.069,
+    "rms_dbfs": -15.153,
+    "full_scale_samples": 0
+  },
+  "audio_swing": {
+    "bytes": 1864,
+    "peak_dbfs": -1.469,
+    "rms_dbfs": -14.195,
+    "full_scale_samples": 0
+  },
+  "pickup_audio_coin1": {
+    "bytes": 2608,
+    "peak_dbfs": -1.235,
+    "rms_dbfs": -12.162,
+    "full_scale_samples": 0
+  },
+  "pickup_audio_coin2": {
+    "bytes": 2976,
+    "peak_dbfs": -1.275,
+    "rms_dbfs": -12.439,
+    "full_scale_samples": 0
+  },
+  "pickup_audio_eat": {
+    "bytes": 9664,
+    "peak_dbfs": -1.29,
+    "rms_dbfs": -6.209,
+    "full_scale_samples": 0
+  },
+  "chapter_war_intro": {
+    "bytes": 10688,
+    "peak_dbfs": -1.112,
+    "rms_dbfs": -17.488,
+    "full_scale_samples": 0
+  },
+  "chapter_war_boss": {
+    "bytes": 113784,
+    "peak_dbfs": -1.462,
+    "rms_dbfs": -14.191,
+    "full_scale_samples": 0
+  },
+  "chapter_blacksmith": {
+    "bytes": 102780,
+    "peak_dbfs": -1.512,
+    "rms_dbfs": -20.297,
+    "full_scale_samples": 0
+  },
+  "chapter_weapons": {
+    "bytes": 115836,
+    "peak_dbfs": -1.137,
+    "rms_dbfs": -13.538,
+    "full_scale_samples": 0
+  },
+  "chapter_worldmap": {
+    "bytes": 120008,
+    "peak_dbfs": -1.025,
+    "rms_dbfs": -15.259,
+    "full_scale_samples": 0
+  },
+  "chapter_barbarian_boss": {
+    "bytes": 372824,
+    "peak_dbfs": -1.199,
+    "rms_dbfs": -15.39,
+    "full_scale_samples": 0
+  },
+  "chapter_goldgrab": {
+    "bytes": 6880,
+    "peak_dbfs": -2.088,
+    "rms_dbfs": -12.909,
+    "full_scale_samples": 0
+  },
+  "chapter_boss_duel": {
+    "bytes": 385824,
+    "peak_dbfs": -1.487,
+    "rms_dbfs": -14.283,
+    "full_scale_samples": 0
+  },
+  "chapter_boss_victory": {
+    "bytes": 259140,
+    "peak_dbfs": -1.092,
+    "rms_dbfs": -15.241,
+    "full_scale_samples": 0
+  },
+  "chapter_smith_hammer": {
+    "bytes": 2048,
+    "peak_dbfs": -1.281,
+    "rms_dbfs": -16.89,
+    "full_scale_samples": 0
+  },
+  "cinematic_intro": {
+    "bytes": 32804,
+    "peak_dbfs": -1.02,
+    "rms_dbfs": -11.646,
+    "full_scale_samples": 0
+  },
+  "cinematic_force": {
+    "bytes": 3908,
+    "peak_dbfs": -1.331,
+    "rms_dbfs": -14.571,
+    "full_scale_samples": 0
+  },
+  "cinematic_fly": {
+    "bytes": 6136,
+    "peak_dbfs": -1.277,
+    "rms_dbfs": -16.825,
+    "full_scale_samples": 0
+  },
+  "cinematic_scream": {
+    "bytes": 2608,
+    "peak_dbfs": -1.268,
+    "rms_dbfs": -13.369,
+    "full_scale_samples": 0
+  },
+  "cinematic_help": {
+    "bytes": 2980,
+    "peak_dbfs": -1.273,
+    "rms_dbfs": -12.762,
+    "full_scale_samples": 0
+  },
+  "cinematic_door": {
+    "bytes": 4092,
+    "peak_dbfs": -1.046,
+    "rms_dbfs": -20.857,
+    "full_scale_samples": 0
+  },
+  "cinematic_block3": {
+    "bytes": 2048,
+    "peak_dbfs": -1.423,
+    "rms_dbfs": -19.724,
+    "full_scale_samples": 0
+  },
+  "cinematic_ground2": {
+    "bytes": 2048,
+    "peak_dbfs": -1.102,
+    "rms_dbfs": -15.078,
+    "full_scale_samples": 0
+  },
+  "cinematic_ground5": {
+    "bytes": 1676,
+    "peak_dbfs": -1.388,
+    "rms_dbfs": -15.903,
+    "full_scale_samples": 0
+  }
+}

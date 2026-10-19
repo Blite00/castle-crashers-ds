@@ -1,0 +1,50 @@
+# Additional chapter music audit
+
+Only new second-chapter/hub audio is imported. Existing first-level/menu/arena sample arrays and their rates are unchanged.
+
+## Source evidence
+
+- LEVEL11 frame1 registers INTRO(1),MACHINER(2),MUDHOLES(3), and starts MUDHOLES. LEVEL12 registers MUDHOLES as well; this implementation selects the existing campaign music for ordinary bridge traversal.
+- LEVEL11 sprite364 frame59 stops previous music and starts INTRO once. Frame126 releases the players but does not change music. Frame210 starts looping MACHINER; the alternate branch does the same at267. The implementation retains its source clock after player release and uses the normal210 branch. Late boss snapshots start the loop without replaying a stale intro.
+- LEVEL14 frame1 registers/plays NG86480(21): blacksmith.
+- LEVEL15 frame1 registers/plays WEAPONFROG(12): weapon storage.
+- LEVEL16 contains no RegisterMusic/PlayMusic call in the exported initialization. The Ark mode preserves the existing hub music if entering directly from a hub. This is a bounded inheritance policy, not a claim that every engine-level transition has been reproduced.
+
+All files come from the installed `data/music/*.xma`. `tools/convert_chapter_audio.py` records their original SHA256, full duration, encoded size and decoded peak in `generated/chapter-audio-audit.json`. Original full tracks are retained;20ms edge fades follow the existing converter convention, with constant gain and decoded peak at most−1dBFS. New War intro/boss use4000Hz to fit alongside original chapter art; new hub music uses5512Hz. This does not change the existing first-level music quality. Scripted second-level sound effects are not part of this music-only bank.
+
+## Storage and ownership
+
+`nitrofiles/audio/chapter-war.bin`124472bytes contains both INTRO and MACHINER, loaded once before combat. Thus the59/210 cue switches require no SD reads. Blacksmith102780bytes and weapons115836bytes load on hub entry. Buffers borrow32-byte-aligned unused space at the end of the already allocated chapter bank; there is no additional permanent sample array or heap allocation.
+
+The accessor fails if the bank is invalid or insufficient space remains. Audio checks the expected loaded bank before playing. Callers must stop audio with AUDIO_SILENT **before** loading/replacing a chapter bank, because sound hardware may still read the borrowed memory. Invalidation detected on a later update is a secondary check, not a substitute for this ordering. Ark transition preserves the playing channel when the existing hub bank remains loaded.
+
+Native tests cover original first-level cue/buffer lifetimes, exact59/210 timing across release126, duplicate and late snapshots, no midfight reload, hub inheritance, missing/wrong banks, tail capacity/alignment/isolation, input hashes, full sample durations and ADPCM headroom. Physical DS listening/performance has not been verified by these native tests.
+
+
+## v0.36 world map and Barbarian Boss
+
+MAP frame1 registers FLUTEY as track10 (line1413), then loops it at1498. The world map now uses the full original FLUTEY track at8000Hz, not the main-menu music. Walking and changing the selected destination do not reload or restart it. The original classic MAP artwork itself is parchment/olive; the stronger green terrain, stone-blue buildings and brown fort are explicit material recoloring of its source vector fills. Source paths, contours, node positions and independently compressed32x64 tiles remain unchanged. This is adapted color, not a claimed hidden full-color source frame.
+
+LEVEL7 frame1 registers MUDHOLES(3), Waterflame_RaceVictory(4), NG21749(5), NG64061(9), and goldgrab(14). Sprite202/frame127 starts NG64061. Sprite226/frame10 starts goldgrab. Sprite245/frame33 calls f_VSPrep with arenamusic5; MAIN sprite39/frame83 begins that duel music. PLAYER kiss clips1888/1889/1890 call f_ScoreTally atframe60, whose MAIN implementation starts track4. The DS controller uses intro127, treasure10, duel entry and the affection boundary after the65tick approach as cues. Starting victory music at that affection boundary is an explicit DS ending adaptation; source f_ScoreTally calls it later in the kiss animation. The duel-intro timing follows the DS controller's release boundary rather than importing the complete original VS-overlay animation.
+
+Full music durations are preserved: FLUTEY120008bytes at8000Hz; NG64061 plus goldgrab379712bytes (4000/8000Hz); NG21749 duel385824bytes at2700Hz; victory259140bytes at8000Hz. The boss loop and treasure cue share one preloaded bank, so their switches require no reads. Duel and victory each replace the now-unused previous music in the same aligned chapter tail, once at their phase boundary. Playback is stopped before the overwrite. This avoids permanent RAM allocation but does entail a boundary read; it is not a claim of zero I/O during the entire ending. Only the largest385824byte tail is required, never the sum. Repeated snapshots and repeated mode selection neither reload nor restart tracks.
+
+An additional source mismatch was repaired: EWARMACH death frame188 restarts MUDHOLES; leaving the machine death now restores the existing compiled field sample once, without disk I/O. Existing first-level arrays, cue timing, master volume and pickup sounds remain unchanged. Native audio-backend checks cover these transitions, skipped/duplicate snapshots and muted playback; source-hash/full-duration/headroom canaries cover every new track.
+
+
+Blacksmith ambient loop now uses original LEVEL14 sprite73 with its nested72 hammer animation, sampled at sourceframes1/4/7/10/13/16/19/22/25 over a27tickloop. Sprite72/frame13 plays the original sound_blacksmith sample. The ambient art is14681bytes of frame data (6157pixels largest decoded key); the source pose is removed from baked terrain and rendered at its source depth300. Hammer audio adds2052bytes to the existing blacksmith music bank, for104832total, and plays only once for the matching visible animation tick. This adds no per-frame storage reads. Other hub ambient actors remain static.
+
+
+## v0.36 speaker loudness pass (supersedes earlier constant-gain notes)
+
+The actual preserved ARM7 ELF was inspected with the installed ARM disassembler: `enableSound` enables the power amplifier and sets master127; its DSi branch selects full ARM output. The sample handler uses volume divider1. The ARM9 path also already supplied master127. There was no additional hidden hardware gain setting to turn up safely. The matching upstream implementations are [BlocksDS ARM7 audio](https://github.com/blocksds/libnds/blob/master/source/arm7/audio.c) and [ARM9 sound](https://github.com/blocksds/libnds/blob/master/source/arm9/sound.c). Hardware panning attenuates a centered mono voice to half amplitude in each speaker; [melonDS SPU](https://github.com/melonDS-emu/melonDS/blob/master/src/SPU.cpp) models that mixer path. Existing ADPCM header, nibble order, signed predictor range and master scale checks remain valid.
+
+Music now uses previously idle hardwarechannel0 and existingchannel8, routed right/left respectively. Both share the same compressed sample pointer. Each speaker gets9/14 of the former channel setting, about+2.2dB over the old centered output, without duplicating the sample buffer. Every stop, cinematic fade, bank invalidation and replacement covers both channels. Master mute preserves their playback positions. This changes ARM9 only; the v0.7 ARM7 payload stays untouched.
+
+All34 shipped clips also pass a consistent offline RMS-envelope compressor before final ADPCM encoding: threshold0.12, ratio3:1, attack0.1ms, release90ms, soft knee4. Their sample rates, full durations, loop locations and encoded byte lengths are unchanged. The encoder checks the actual decoded output, retaining the -1dBFS ceiling and zero full-scale samples. `generated/audio-loudness-baseline.json` records the pre-pass levels; `audio-loudness-audit.json` records the resulting levels. Measured RMS rises1.36–7.58dB across all clips: menu4.26, arena4.58, campaign3.40, worldmap4.64, boss4.89, swing1.49, hit1.76, shield1.86, magic2.21–3.89 and pickups2.35–2.68dB. These are digital sample measurements, not measured DS speaker loudness.
+
+The final control-rate mixer uses a power-based overlap budget with a1.3x crest margin. A strict sum of every possible aligned peak was tested and rejected because it reduced busy combat volume below the old mix. Each one-shot instead has a small suffix-peak envelope (808bytes plus16 descriptors) which follows its decay conservatively; overlapping voice powers determine the master setting. This reduces clipping while preserving measured action loudness, but does not guarantee zero clipping for adversarial aligned samples. The runtime performs only small integer control calculations, with256bytes of voice bookkeeping and no sample buffer, software decoder or per-sample mixing. Both48KiB runtime reservations remain unchanged.
+
+`tools/test_audio_mix.py` compares the old source conversion and the new samples through actual integer volume/pan/master rules at32000output samples/second. Ten-second traces include looping campaign music, alternating two-player swings/hits, overlapping magic and channel replacement. Results (`generated/audio-mix-audit.json`): idle +6.06dB; normal action +1.54dB, with clipped speaker samples48→0; busy sustained action +0.37dB, with clipped samples14→4 of640000 (0.000625%). These bounded synthetic traces are useful regression evidence, not coverage of every possible gameplay event or physical speaker response. Every individual asset still decodes without clipping below-1dBFS.
+
+One-shot time bookkeeping uses conservative60Hz display updates; slow frames retain earlier, higher suffix bounds longer. The native backend test exercises two-player overlap budgets, routing, mute/unmute, voice expiry and paired-channel stops. Real DS/DSi listening and subjective pumping/artifact checks remain outstanding. Regenerate `audio_envelopes.h` with `tools/convert_audio_envelopes.py` after changing the audio samples.
