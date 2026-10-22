@@ -5,6 +5,7 @@
 #include "../generated/break_points.h"
 #include "../generated/deer_layout.h"
 #include "../generated/flood_geometry.h"
+#include "../generated/camp_geometry.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,9 +22,11 @@ typedef struct {
     const BreakPoint *breaks;unsigned break_count; /* scenery that must stand on walkable ground */
 } Level;
 static const Level LEVELS[]={
+    {11,"Barbarian Boss",1024,{{214,316},{192,336}},500,0,0,228,0,0},
     {12,"Forest Entrance",2304,{{176,243},{156,258}},2200,44,56,38,break_forest,19},
     {13,"Thieves' Forest",6688,{{327,0},{307,0}},6400,0,0,157,break_thieves,16},
     {14,"Mill Run",DEER_WIDTH,{{444,216},{412,195}},3458,0,0,86,0,0},
+    {16,"Tall Grass Field",CAMP_WIDTH,{{450,351},{430,367}},6100,0,0,345,0,0},
     {15,"Flooded Castle",FLOOD_WIDTH,{{324,234},{547,240}},100,0,0,142,0,0},
 };
 #define STEP 4

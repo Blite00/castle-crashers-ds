@@ -6,8 +6,8 @@ import xml.etree.ElementTree as ET
 import rider_art as ra
 import deer_art
 R=ra.R
-LEVEL=[('fishidle',461,12),('fishhit',464,15),('fishjump',471,74),('fishcharge',475,89),('fishdie',485,9),('fin',489,1),('rock',458,1),('log',454,16),
-       ('cat149',149,95),('cat218',218,38),('cat241',241,50),('cat248',248,114),('cat263',263,155),('cat280',280,31),('cat297',297,149),('boat',433,4),('catgo',313,49)]
+LEVEL=[('fishidle',461,12),('fishhit',464,15),('fishjump',471,74),('fishcharge',475,89),('fishdie',485,9),('fin',489,1),('rock',458,1),('log',455,13),
+       ('cat149',149,95),('cat218',218,38),('cat241',241,50),('cat248',248,114),('cat263',263,155),('cat280',280,31),('cat297',297,149),('boat',433,4),('catgo',313,49),('cannon',434,68),('angry',333,112)]
 PLAYER=[('swimstand',1699,12),('swimwalk',1700,12),('bathead',1737,11),('logride',1693,16)]
 def place(tags,sid,count):
     ET.SubElement(tags,'item',type='RemoveObject2Tag',depth='1',forceWriteAsLong='false')

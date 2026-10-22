@@ -2,7 +2,7 @@
 from pathlib import Path
 import pickle,collections,zlib,json
 import numpy as np
-NW=9;R=Path(__file__).resolve().parents[1];bank=pickle.loads((R/'build/default-combos.pkl').read_bytes());samples=[0,3,6,9,12,17,20,23,26,31];images=[]
+NW=12;R=Path(__file__).resolve().parents[1];bank=pickle.loads((R/'build/default-combos.pkl').read_bytes());samples=[0,3,6,9,12,17,20,23,26,31];images=[]
 for f,raw in zip(bank['meta'],bank['raws']):
  _,x,y,w,h=f;a=np.zeros((120,192),np.uint8);a[y+88:y+88+h,x+96:x+96+w]=np.frombuffer(raw,np.uint8).reshape(h,w);images.append(a.ravel())
 def patch(a,b):

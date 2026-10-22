@@ -29,7 +29,7 @@ XML = {
     'level13': 'LEVEL13-full',
     'level4-full': 'LEVEL4-full', 'level7-full': 'LEVEL7-full', 'level11-full': 'LEVEL11-full',
     'level12-full': 'LEVEL12-full', 'level16-full': 'LEVEL16-full', 'level18-full': 'LEVEL18-full',
-    'level22-full': 'LEVEL22-full', 'level23-full': 'LEVEL23-full',
+    'level20-full': 'LEVEL20-full', 'level22-full': 'LEVEL22-full', 'level23-full': 'LEVEL23-full',
     'level14-audit': 'LEVEL14-audit', 'level15-audit': 'LEVEL15-audit',
 }
 

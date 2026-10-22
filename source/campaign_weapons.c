@@ -12,7 +12,10 @@ static const CampaignWeapon weapons[WEAPON_COUNT]={
  {"Leaf blade",38,5,0,0,-1,0,3,0},
  {"Troll club",30,1,0,0,-1,1,1,0},
  {"Chest blade",37,1,0,0,2,0,0,-1}, /* LEVEL4 chest weapon_type37: strength +2, agility -1 */
- {"Chest mace",42,1,0,0,0,-1,-1,1}  /* LEVEL4 chest weapon_type42: agility +1, defense -1, magic -1 */
+ {"Chest mace",42,1,0,0,0,-1,-1,1}, /* LEVEL4 chest weapon_type42: agility +1, defense -1, magic -1 */
+ {"Lobster",54,5,0,100,-1,0,0,1},   /* LEVEL20 f_WeaponStats 54: agility +1, strength -1, critical 100, level 5 */
+ {"Umbrella",55,5,0,0,-1,3,0,0},   /* 55: defense +3, strength -1, level 5 */
+ {"Wrench",62,5,0,50,1,0,-1,0}     /* 62: strength +1, magic -1, critical 50, level 5 */
 };
 const CampaignWeapon *campaign_weapon_info(unsigned slot){return slot<WEAPON_COUNT?&weapons[slot]:0;}
 int campaign_weapon_can_equip(const WeaponSet *owned,unsigned slot,unsigned level){return slot<WEAPON_COUNT&&weapon_set_has(owned,slot)&&level>=weapons[slot].level;}

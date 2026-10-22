@@ -11,7 +11,7 @@ for t in original.find('tags'):
   actions=b''.join(bytes.fromhex(a.get('actionBytes','')) for a in t.find('subTags') if a.get('type')=='DoActionTag')
   if b'f_Weapon\0' in actions:selectors[t.get('spriteId')]=t
 for color in ('blue','orange','red','green'):
- for weapon in (1,2,9,19,10,38,30,37,42):
+ for weapon in (1,2,9,19,10,38,30,37,42,54,55,62):
   r=E.parse(R/f'assets/extracted/{color}.xml').getroot();tags=r.find('tags')
   definitions=[t for t in tags if t.get('type','').startswith('Define')];tags.clear();tags.extend(definitions)
   for i,t in enumerate(list(tags)):

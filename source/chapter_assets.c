@@ -71,9 +71,9 @@ failed:
 int chapter_assets_load(unsigned bank){
  static const char*const names[]={
 #ifdef ARM9
- "nitro:/chapters/arenas.bin","nitro:/chapters/keep.bin","nitro:/chapters/war.bin","nitro:/chapters/hubs.bin","nitro:/chapters/boss.bin","nitro:/chapters/forest.bin","nitro:/chapters/thieves.bin","nitro:/chapters/deer.bin","nitro:/chapters/flood.bin"
+ "nitro:/chapters/arenas.bin","nitro:/chapters/keep.bin","nitro:/chapters/war.bin","nitro:/chapters/hubs.bin","nitro:/chapters/boss.bin","nitro:/chapters/forest.bin","nitro:/chapters/thieves.bin","nitro:/chapters/deer.bin","nitro:/chapters/flood.bin","nitro:/chapters/camp.bin"
 #else
- "nitrofiles/chapters/arenas.bin","nitrofiles/chapters/keep.bin","nitrofiles/chapters/war.bin","nitrofiles/chapters/hubs.bin","nitrofiles/chapters/boss.bin","nitrofiles/chapters/forest.bin","nitrofiles/chapters/thieves.bin","nitrofiles/chapters/deer.bin","nitrofiles/chapters/flood.bin"
+ "nitrofiles/chapters/arenas.bin","nitrofiles/chapters/keep.bin","nitrofiles/chapters/war.bin","nitrofiles/chapters/hubs.bin","nitrofiles/chapters/boss.bin","nitrofiles/chapters/forest.bin","nitrofiles/chapters/thieves.bin","nitrofiles/chapters/deer.bin","nitrofiles/chapters/flood.bin","nitrofiles/chapters/camp.bin"
 #endif
  };
  if(chapter_assets_ready(bank)){last_error=CHAPTER_ASSET_OK;return 1;}

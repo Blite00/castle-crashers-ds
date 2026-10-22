@@ -7,7 +7,10 @@ static const PetInfo buddy={"Mr Buddy",0,0,0,0,1};
 static const PetInfo owlet={"Owlet",0,0,0,0,0};
 static const PetInfo troll={"Troll",0,0,0,0,0};
 static const PetInfo dino={"Dino",0,0,0,2,0};
-const PetInfo *pets_info(unsigned id){return id==PET_SNOOT?&snoot:id==PET_MR_BUDDY?&buddy:id==PET_OWLET?&owlet:id==PET_TROLL?&troll:id==PET_DINO?&dino:0;}
+static const PetInfo rammy={"Rammy",0,0,0,0,0};
+static const PetInfo burly={"Burly Bear",0,0,0,0,0};
+static const PetInfo hawkster={"Hawkster",0,0,0,0,0};
+const PetInfo *pets_info(unsigned id){return id==PET_RAMMY?&rammy:id==PET_BURLY?&burly:id==PET_HAWKSTER?&hawkster:id==PET_SNOOT?&snoot:id==PET_MR_BUDDY?&buddy:id==PET_OWLET?&owlet:id==PET_TROLL?&troll:id==PET_DINO?&dino:0;}
 int pets_owned(const PetProfile *p,unsigned id){return p&&pets_info(id)&&!!(p->owned&(UINT64_C(1)<<id));}
 int pets_profile_valid(const PetProfile *p){return p&&!(p->owned&~PET_SUPPORTED_MASK)&&(!p->equipped||pets_owned(p,p->equipped));}
 int pets_profile_encode(uint8_t out[9],const PetProfile *p){

@@ -33,6 +33,13 @@ def forest_backdrop(W,H):
     for xx in range(W):fp[xx,yy]=c
    bg.alpha_composite(floor,(0,base))
  return bg
+def camp_backdrop(W,H):
+ """LEVEL20: open daylight over the beach and the plain (the original parallax hills, sea and treeline layers are not ported yet)."""
+ bg=Image.new('RGBA',(W,H));px=bg.load();top=(112,168,226);horizon=(204,228,238)
+ for y in range(H):
+  t=min(1.0,y/200.0);c=tuple(round(top[i]+(horizon[i]-top[i])*t) for i in range(3))
+  for x in range(W):px[x,y]=c+(255,)
+ return bg
 def flood_backdrop(W,H):
  """LEVEL23: dark woods above the river, deep water below the skewed river plane."""
  bg=Image.new('RGBA',(W,H));px=bg.load()
@@ -76,7 +83,7 @@ def convert(name):
   while y>=0 and p[x,y][3]<250:y-=1
   if y>=0:
    for yy in range(y+1,H):p[x,yy]=p[x,y]
- bg=flood_backdrop(W,H) if name=='flood' else deer_backdrop(W,H) if name=='deer' else thieves_backdrop(W,H) if name=='thieves' else forest_backdrop(W,H) if name=='forest' else Image.open(R/'assets/campaign-sky-images/1.png').convert('RGBA').resize((W,W//2),Image.Resampling.LANCZOS).crop((0,0,W,H));bg.alpha_composite(im)
+ bg=camp_backdrop(W,H) if name=='camp' else flood_backdrop(W,H) if name=='flood' else deer_backdrop(W,H) if name=='deer' else thieves_backdrop(W,H) if name=='thieves' else forest_backdrop(W,H) if name=='forest' else Image.open(R/'assets/campaign-sky-images/1.png').convert('RGBA').resize((W,W//2),Image.Resampling.LANCZOS).crop((0,0,W,H));bg.alpha_composite(im)
  layers=[]
  for i,m in enumerate(info['layers']):
   im=Image.open(R/f'assets/campaign-{name}-fg/{i+1}.png').convert('RGBA')
@@ -112,7 +119,7 @@ def convert(name):
   for y in range(0,H,64):
    block=b''.join(pixels[yy*W+x:yy*W+x+32] for yy in range(y,min(y+64,H)));encoded=pack(block);assert zlib.decompress(encoded,-15)==block;rowdata.extend(encoded);offsets.append(len(rowdata))
  guard=name.upper()+'_ART_H';h=f'#ifndef {guard}\n#define {guard}\n#include <stdint.h>\n#include <string.h>\n#include "asset_inflate.h"\n#include "route_art_types.h"\n#define {prefix.upper()}_WIDTH {W}\n#define {prefix.upper()}_HEIGHT {H}\n#define {prefix.upper()}_FG_COUNT {len(records)}\n'
- if name in ('forest','thieves','deer','flood'):
+ if name in ('forest','thieves','deer','flood','camp'):
   # Chapter-bank tables: byte images with a typed view, so the shared ARM9 image stays small.
   import struct
   def bank_table(n,ctype,fmt,rows):
@@ -150,7 +157,7 @@ static inline int {prefix}_decode_fg(unsigned index,uint8_t*out){{
  (R/f'generated/{name}-art-audit.json').write_text(json.dumps(report,indent=2));print(name,'terrain',len(rowdata),'fg',len(fg),'total',len(rowdata)+len(fg),'layers',len(records),'max',report['max_pixels'])
 if __name__=='__main__':
  (R/'generated/route_art_types.h').write_text('#ifndef ROUTE_ART_TYPES_H\n#define ROUTE_ART_TYPES_H\n#include <stdint.h>\ntypedef struct {int16_t x,y,w,h,depth;uint32_t offset,length;uint16_t source,placement;uint8_t dynamic;} CampaignRouteLayer;\n#endif\n')
- for name in (('blacksmith','frog','ark') if '--hubs' in sys.argv else ('forest',) if '--forest' in sys.argv else ('thieves',) if '--thieves' in sys.argv else ('deer',) if '--deer' in sys.argv else ('flood',) if '--flood' in sys.argv else ('war','bridge')):convert(name)
+ for name in (('blacksmith','frog','ark') if '--hubs' in sys.argv else ('forest',) if '--forest' in sys.argv else ('thieves',) if '--thieves' in sys.argv else ('deer',) if '--deer' in sys.argv else ('flood',) if '--flood' in sys.argv else ('camp',) if '--camp' in sys.argv else ('war','bridge')):convert(name)
 
 if __name__ == "__main__" and "--prepare" not in sys.argv:
     from pack_chapter_assets import build as _refresh_chapter_banks

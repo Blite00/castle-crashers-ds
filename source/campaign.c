@@ -3,6 +3,7 @@
 #include "campaign_forest.h"
 #include "campaign_deer.h"
 #include "campaign_flood.h"
+#include "campaign_camp.h"
 #include "campaign_thieves.h"
 #include "species.h"
 #include "item_selector.h"
@@ -212,6 +213,27 @@ static void troll_step(Campaign *c,Arena *a){
                 c->pickup_kind[h]=DROP_FOOD;c->pickup_value[h]=(uint8_t)(p->hp-before);c->pickup_seq[h]=(c->pickup_seq[h]+1)&31;c->pickup_timer[h]=30;
             }
         }
+    }
+}
+/* Animal orbs with a strike (LEVEL20 f_SetAnimalTimer): Rammy rams the enemy in front of it every 60 ticks, Hawkster pecks every 75, Burly Bear mauls every 90. */
+static void pet_attack_step(Campaign *c,Arena *a){
+    for(unsigned h=0;h<2;h++){
+        unsigned id=c->pets[h].equipped,period=id==PET_RAMMY?60:id==PET_HAWKSTER?75:id==PET_BURLY?90:0;
+        const Fighter *owner=&a->p[h];
+        if(!period||!owner->ready||owner->hp<=0){c->pet_timer[h]=0;continue;}
+        if(++c->pet_timer[h]<period)continue;
+        const PetFollower *f=&c->pet_followers[h];int reach=id==PET_RAMMY?70:id==PET_HAWKSTER?55:45,damage=id==PET_RAMMY?12:id==PET_HAWKSTER?8:16,best=-1,near=1000;
+        for(int i=0;i<CAMPAIGN_ENEMIES;i++){
+            const Fighter *e=&c->enemies[i];if(!e->ready||e->hp<=0||e->z>20||e->pose==POSE_KNOCKDOWN)continue;
+            int dx=(e->x-f->x)*(owner->facing<0?-1:1);
+            if(id==PET_RAMMY?(dx<4||dx>reach):abs(dx)>reach)continue;
+            if(abs(e->y-f->y)>(id==PET_RAMMY?20:28))continue;
+            if(abs(dx)<near){near=abs(dx);best=i;}
+        }
+        if(best<0){c->pet_timer[h]=(uint8_t)(period-1);continue;} /* look again next tick */
+        c->pet_timer[h]=0;
+        Fighter attacker=*owner;attacker.attack_kind=HIT_NONE;
+        arena_campaign_strike(&attacker,&c->enemies[best],damage,id==PET_RAMMY?4:0,c->enemies[best].x>=f->x?1:-1,0,0);
     }
 }
 static void collect_pets(Campaign *c,Arena *a){
@@ -435,6 +457,7 @@ void campaign_cinematic_tick(Campaign *c,Arena *a){
     collect(c,a);collect_pets(c,a);drain_drops(c);
 }
 void campaign_combat_tick(Campaign *c,Arena *a,const uint16_t keys[2]){
+    pet_attack_step(c,a);
     int old_hp[CAMPAIGN_ENEMIES];uint8_t old_ready[CAMPAIGN_ENEMIES];
     for(int i=0;i<CAMPAIGN_ENEMIES;i++){old_hp[i]=c->enemies[i].hp;old_ready[i]=c->enemies[i].ready;}
     uint16_t filtered[2];campaign_items(c,a,keys,filtered);
@@ -525,7 +548,7 @@ int campaign_tally_step(Campaign *c,Arena *a,const uint16_t keys[2]){
 }
 static void tally_begin(Campaign *c){for(int h=0;h<2;h++){c->tally_xp0[h]=c->profiles[h].xp;c->tally_gold0[h]=c->profiles[h].gold;c->level_kills[h]=0;}c->tally_ticks=0;c->tally_valid=1;}
 void campaign_world_map(Campaign *c,Arena *a){
-    c->tally_ticks=0;a->winner=0;a->countdown=0;c->paused=0;c->phase=CAMPAIGN_WORLD_MAP;c->group=a->map_id==FLOOD_MAP?8:a->map_id==DEER_MAP?7:a->map_id==THIEVES_MAP?6:a->map_id==FOREST_MAP?5:a->map_id==BOSS_MAP?4:a->map_id>=HUB_BLACKSMITH?0:a->map_id==4?2:(a->map_id==6||a->map_id==7)?3:1;c->spawned=c->group;c->timer=0;
+    c->tally_ticks=0;a->winner=0;a->countdown=0;c->paused=0;c->phase=CAMPAIGN_WORLD_MAP;c->group=a->map_id==CAMP_MAP?9:a->map_id==FLOOD_MAP?8:a->map_id==DEER_MAP?7:a->map_id==THIEVES_MAP?6:a->map_id==FOREST_MAP?5:a->map_id==BOSS_MAP?4:a->map_id>=HUB_BLACKSMITH?0:a->map_id==4?2:(a->map_id==6||a->map_id==7)?3:1;c->spawned=c->group;c->timer=0;
 }
 /* The departure node and elapsed walk fit existing phase-specific wire fields.
    Gameplay actors stay on their valid scene coordinates throughout map travel. */
@@ -543,7 +566,7 @@ int campaign_world_enter(Campaign *c,Arena *a,unsigned node){
     if(!campaign_world_unlocked(c,node))return 0;
     for(unsigned h=0;h<2;h++)if(a->p[h].ready){a->p[h].hp=campaign_health(c,h);a->p[h].mana=campaign_mana(c,h);}
     tally_begin(c);
-    if(node==0)campaign_hubs_start(c,a,HUB_BLACKSMITH,0);else if(node<=2){campaign_start(c,a,a->p[1].ready);if(node==2)enter_store(c,a);}else if(node==8)campaign_flood_start(c,a);else if(node==7)campaign_deer_start(c,a);else if(node==6)campaign_thieves_start(c,a);else if(node==5)campaign_forest_start(c,a);else if(node==4)campaign_boss_start(c,a);else campaign_war_start(c,a,WAR_MAP);
+    if(node==0)campaign_hubs_start(c,a,HUB_BLACKSMITH,0);else if(node<=2){campaign_start(c,a,a->p[1].ready);if(node==2)enter_store(c,a);}else if(node==9)campaign_camp_start(c,a);else if(node==8)campaign_flood_start(c,a);else if(node==7)campaign_deer_start(c,a);else if(node==6)campaign_thieves_start(c,a);else if(node==5)campaign_forest_start(c,a);else if(node==4)campaign_boss_start(c,a);else campaign_war_start(c,a,WAR_MAP);
     return 1;
 }
 void campaign_step(Campaign *c,Arena *a,const uint16_t keys[2]){
@@ -552,6 +575,7 @@ void campaign_step(Campaign *c,Arena *a,const uint16_t keys[2]){
     for(int i=0;i<2;i++)if(c->pickup_timer[i])c->pickup_timer[i]--;
     if(c->phase!=BOSS_DUEL&&!living_heroes(a)){a->winner=2;return;}
     if(a->map_id==BOSS_MAP){campaign_boss_step(c,a,keys);return;}
+    if(a->map_id==CAMP_MAP){campaign_camp_step(c,a,keys);if(c->phase==WAR_COMPLETE&&campaign_tally_step(c,a,keys))campaign_world_map(c,a);return;}
     if(a->map_id==FLOOD_MAP){campaign_flood_step(c,a,keys);if(c->phase==WAR_COMPLETE&&campaign_tally_step(c,a,keys))campaign_world_map(c,a);return;}
     if(a->map_id==DEER_MAP){campaign_deer_step(c,a,keys);if(c->phase==WAR_COMPLETE&&campaign_tally_step(c,a,keys))campaign_world_map(c,a);return;}
     if(a->map_id==THIEVES_MAP){campaign_thieves_step(c,a,keys);if(c->phase==WAR_COMPLETE&&campaign_tally_step(c,a,keys))campaign_world_map(c,a);return;}
@@ -739,8 +763,8 @@ void campaign_pack(CampaignPacket *p,const Campaign *c,const Arena *a,uint32_t s
     for(int i=0;i<2;i++){p->reserved[1+i*3]=(c->pickup_seq[i]<<3)|c->pickup_kind[i];p->reserved[2+i*3]=c->pickup_value[i];p->reserved[3+i*3]=c->pickup_timer[i];}
 }
 int campaign_packet_valid(const CampaignPacket *p){
-    if(!p||p->magic!=CAMPAIGN_MAGIC||p->version!=CAMPAIGN_VERSION||p->map_id<3||p->map_id>FLOOD_MAP||p->running>31||p->winner>2||((p->completed>>1)&7)>5||((p->completed>>4)&7)>5||p->revive[0]>60||p->revive[1]>60)return 0;
-    int war=p->map_id==WAR_MAP||p->map_id==BRIDGE_MAP||p->map_id==FOREST_MAP||p->map_id==THIEVES_MAP||p->map_id==DEER_MAP||p->map_id==FLOOD_MAP,boss=p->map_id==BOSS_MAP;
+    if(!p||p->magic!=CAMPAIGN_MAGIC||p->version!=CAMPAIGN_VERSION||p->map_id<3||p->map_id>CAMP_MAP||p->running>31||p->winner>2||((p->completed>>1)&7)>5||((p->completed>>4)&7)>5||p->revive[0]>60||p->revive[1]>60)return 0;
+    int war=p->map_id==WAR_MAP||p->map_id==BRIDGE_MAP||p->map_id==FOREST_MAP||p->map_id==THIEVES_MAP||p->map_id==DEER_MAP||p->map_id==FLOOD_MAP||p->map_id==CAMP_MAP,boss=p->map_id==BOSS_MAP;
     if(p->phase==CAMPAIGN_WORLD_MAP){if(p->group>=CAMPAIGN_WORLD_NODES||p->spawned>=CAMPAIGN_WORLD_NODES||p->timer>world_walk_duration(p->spawned,p->group)||(p->spawned==p->group&&p->timer))return 0;}
     else if(boss){if(p->phase<BOSS_INTRO||p->phase>BOSS_COMPLETE||p->group>4||p->spawned>6||(p->phase==BOSS_DUEL?((p->countdown&127)>90||((p->countdown>>7)&15)>10||((p->countdown>>11)&15)>10||p->countdown>32767||p->round>4095||(p->round>>5)>90):p->round>31))return 0;}
     else if(p->map_id>=HUB_BLACKSMITH&&p->map_id<FOREST_MAP){if(p->phase!=HUB_EXPLORE)return 0;}
@@ -839,7 +863,7 @@ void campaign_mount_step(Campaign *c,Arena *a,uint16_t keys[2]){
             CampaignDrop *item=&c->drops[d];
             if(item->kind!=DROP_CROC)continue;
             /* Walking into a waiting crocodile climbs on; so does a jump from a little farther away (f_HorseWaitCheck: 50 across, 20 deep). */
-            int near=abs(p->x-item->x)<26&&abs(p->y-item->y)<12,jumped=jump&&abs(p->x-item->x)<50&&abs(p->y-item->y)<20;
+            int near=a->map_id!=FLOOD_MAP&&abs(p->x-item->x)<26&&abs(p->y-item->y)<12,jumped=jump&&abs(p->x-item->x)<50&&abs(p->y-item->y)<20;
             if(!near&&!jumped)continue;
             item->kind=0;c->mount_arc[h]=MOUNT_ARC_TICKS;c->mount_from[h][0]=p->x;c->mount_from[h][1]=p->y;c->mount_to[h][0]=item->x;c->mount_to[h][1]=item->y;
             p->facing=item->value?-1:1;keys[h]=0;

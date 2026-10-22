@@ -8,6 +8,7 @@ int protocol_sequence_newer(uint32_t candidate, uint32_t previous) {
     return distance != 0 && distance < 0x80000000u;
 }
 
+/* Campaign maps (map id 3 up, including CAMP_MAP 16 and its 6450 unit width) share the campaign fighter limits below; nothing differs per level. */
 int protocol_input_valid(const InputPacket *p) {
     return p && p->magic == PROTOCOL_MAGIC && p->knight_id < KNIGHT_COUNT && p->confirmed <= 1 && !(p->keys & ~(unsigned)INPUT_MASK);
 }

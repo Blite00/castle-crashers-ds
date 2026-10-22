@@ -9,6 +9,7 @@
 #include "../generated/thieves_geometry.h"
 #include "../generated/deer_geometry.h"
 #include "../generated/flood_geometry.h"
+#include "../generated/camp_geometry.h"
 #include "../generated/arena_collision.h"
 #include "../generated/campaign_world_geometry.h"
 #include "../generated/campaign_shop_geometry.h"
@@ -21,7 +22,7 @@ static volatile int bounds_ready;
 static unsigned active_map;
 void stage_set_map(unsigned map){active_map=map<STAGE_MAP_COUNT?map:0;}
 const char *stage_name(unsigned map){
-    static const char *names[]={"Castle Arena","King's Arena","Volcano Arena","Home Castle","Castle Keep","Barracks","Barbarian War","Barbarian Bridge","Blacksmith","Animal Ark","Weapon Frog","Barbarian Boss","Forest Entrance","Thieves' Forest","Mill Run","Flooded Castle"};
+    static const char *names[]={"Castle Arena","King's Arena","Volcano Arena","Home Castle","Castle Keep","Barracks","Barbarian War","Barbarian Bridge","Blacksmith","Animal Ark","Weapon Frog","Barbarian Boss","Forest Entrance","Thieves' Forest","Mill Run","Flooded Castle","Tall Grass Field"};
     return names[map<STAGE_MAP_COUNT?map:0];
 }
 static void prepare_bounds(void){
@@ -89,6 +90,7 @@ int stage_position_open(int x,int y){
 }
 /* Original BSP46b/47b/49b collision payloads are byte-identical. */
 int stage_position_open_map(unsigned map,int x,int y){
+    if(map==16)return camp_floor_open(x,y);
     if(map==15)return x>=0&&x<FLOOD_WIDTH&&y>=(int)flood_floor_min(x)&&y<=(int)flood_floor_max(x);
     if(map==14)return x>=0&&x<DEER_GEOMETRY_WIDTH&&y>=(int)deer_floor_min(x)&&y<=(int)deer_floor_max(x);
     if(map==13)return x>=0&&x<THIEVES_WIDTH&&y>=(int)thieves_floor_min(x)&&y<=(int)thieves_floor_max(x);
@@ -108,7 +110,7 @@ int stage_position_open_map(unsigned map,int x,int y){
    32 units inside its art-clamped camera while retaining that exit radius. */
 int stage_min_x(void){return active_map==10?168:ARENA_MIN_X;}
 int stage_max_x(void){return active_map>=3?stage_world_width(active_map)-34:ARENA_MAX_X;}
-int stage_world_width(unsigned map){return map==15?FLOOD_WIDTH:map==14?DEER_GEOMETRY_WIDTH:map==13?THIEVES_WIDTH:map==12?2304:map==11?1024:map==8?768:map==9?2816:map==10?3200:map==6?4608:map==7?1024:map==5?CAMPAIGN_BARRACKS_WIDTH:map==4?CAMPAIGN_SHOP_WIDTH:(map>=3?CAMPAIGN_WORLD_WIDTH:WORLD_WIDTH);}
+int stage_world_width(unsigned map){return map==16?CAMP_WIDTH:map==15?FLOOD_WIDTH:map==14?DEER_GEOMETRY_WIDTH:map==13?THIEVES_WIDTH:map==12?2304:map==11?1024:map==8?768:map==9?2816:map==10?3200:map==6?4608:map==7?1024:map==5?CAMPAIGN_BARRACKS_WIDTH:map==4?CAMPAIGN_SHOP_WIDTH:(map>=3?CAMPAIGN_WORLD_WIDTH:WORLD_WIDTH);}
 int stage_world_height(unsigned map){return map>=3?CAMPAIGN_WORLD_HEIGHT:WORLD_HEIGHT;}
 /* Frog artwork starts at source x250; x272 clears its irregular left edge.
    Keep the authored exit/collision coordinates intact. */

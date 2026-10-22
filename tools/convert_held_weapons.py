@@ -9,11 +9,11 @@ for i,c in enumerate(pal):
  if not i:c=pal[1]
  rgb += [(c&31)*255//31,((c>>5)&31)*255//31,((c>>10)&31)*255//31]
 qpal.putpalette(rgb)
-records=[(0,0,0,0,0,0)];blob=bytearray();lookup={};indices=[[] for _ in range(8)];maxpixels=4080;changed=0;preview=Image.new('RGB',(768,480),(40,45,50));shown=0
+records=[(0,0,0,0,0,0)];blob=bytearray();lookup={};indices=[[] for _ in range(11)];maxpixels=4080;changed=0;preview=Image.new('RGB',(768,480),(40,45,50));shown=0
 for ci,color in enumerate(('blue','orange','red','green')):
  for n in range(1,305):
   fid=ci*304+n-1;_,bx,by,bw,bh=base['frames'][fid];old=Image.open(R/f'assets/{color}/{n}.png').convert('RGBA').resize((192,120),Image.Resampling.LANCZOS);oa=np.array(old);baseblock=np.frombuffer(base['pixels'][fid],np.uint8).reshape(bh,bw)
-  for slot,weapon in enumerate((2,9,19,10,38,30,37,42)):
+  for slot,weapon in enumerate((2,9,19,10,38,30,37,42,54,55,62)):
    path=R/f'assets/held-{color}-{weapon}/{n}.png'
    if not path.exists():
     if '--partial' in sys.argv:continue
@@ -39,7 +39,7 @@ for ci,color in enumerate(('blue','orange','red','green')):
    check=before.ravel().copy();off=0;cursor=0
    while off<len(stream):skip=stream[off]|stream[off+1]<<8;count=stream[off+2];off+=3;cursor+=skip;check[cursor:cursor+count]=list(stream[off:off+count]);off+=count;cursor+=count
    assert np.array_equal(check.reshape(h,w),target),(color,n,weapon)
-   if ci==0 and n in (1,30,109,125) and weapon in (2,9,19,10,38,30,37,42):
+   if ci==0 and n in (1,30,109,125) and weapon in (2,9,19,10,38,30,37,42,54,55,62):
     canvas=Image.new('RGBA',(192,120));out=np.zeros((h,w,4),np.uint8)
     for v in np.unique(target):
      if v:out[target==v]=rgb[int(v)*3:int(v)*3+3]+[255]
@@ -80,7 +80,7 @@ static inline int weapon_apply(unsigned id,unsigned slot,uint8_t *out){
 #endif
 '''
 (R/'build/knight_weapon_patches.h').write_text(h);preview.save(R/'generated/held-weapon-preview.png')
-(R/'generated/held-weapon-audit.json').write_text(json.dumps(dict(source='PLAYER.swf f_Weapon sprite243',weapons=[1,2,9,19,10,38,30,37,42],frames=1216,patches=len(records),data_bytes=len(blob),total_bytes=len(blob)+len(records)*12+7296,max_pixels=maxpixels,roundtrips=7296),indent=2))
+(R/'generated/held-weapon-audit.json').write_text(json.dumps(dict(source='PLAYER.swf f_Weapon sprite243',weapons=[1,2,9,19,10,38,30,37,42,54,55,62],frames=1216,patches=len(records),data_bytes=len(blob),total_bytes=len(blob)+len(records)*12+7296,max_pixels=maxpixels,roundtrips=7296),indent=2))
 
 
 # Factor colors and emit final bounded runtime codec after source comparisons.

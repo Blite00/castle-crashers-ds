@@ -235,7 +235,7 @@ static void draw(uint32_t target_refresh){
     static int last_mode=-1,last_choice=-1,last_movie_frame=-1;
     if(mode==ARENA_SELECT)prepare_chapter(0);
     else if((mode==PRACTICE||mode==HOST||mode==CLIENT)&&!lobby_screen()) /* The lobby needs no chapter bank; loading one would keep silencing the menu music. */
-        prepare_chapter(campaign_mode?(campaign.phase==CAMPAIGN_WORLD_MAP?3:arena.map_id==15?8:arena.map_id==14?7:arena.map_id==13?6:arena.map_id==12?5:arena.map_id==11?4:arena.map_id>=8?3:arena.map_id==6||arena.map_id==7?2:1):0);
+        prepare_chapter(campaign_mode?(campaign.phase==CAMPAIGN_WORLD_MAP?3:arena.map_id==16?9:arena.map_id==15?8:arena.map_id==14?7:arena.map_id==13?6:arena.map_id==12?5:arena.map_id==11?4:arena.map_id>=8?3:arena.map_id==6||arena.map_id==7?2:1):0);
     int worldmap=campaign_mode&&arena.running&&campaign.phase==CAMPAIGN_WORLD_MAP;
     int movie=(mode==PRACTICE||mode==HOST||mode==CLIENT)&&campaign_mode&&arena.running&&(campaign.phase==KEEP_INTRO||campaign.phase==KEEP_ABDUCTION);
     int picker=lobby_screen();
@@ -670,6 +670,7 @@ int main(void){
             music=campaign_mode?AUDIO_CAMPAIGN:AUDIO_ARENA;
             if(campaign_mode&&campaign.phase==CAMPAIGN_WORLD_MAP)music=AUDIO_WORLDMAP;
             else if(campaign_mode&&arena.map_id==BOSS_MAP)music=AUDIO_BARBARIAN_BOSS;
+            else if(campaign_mode&&arena.map_id==CAMP_MAP)music=AUDIO_CAMP;
             else if(campaign_mode&&arena.map_id==FLOOD_MAP)music=AUDIO_FLOOD;
             else if(campaign_mode&&arena.map_id==DEER_MAP)music=AUDIO_DEER;
             else if(campaign_mode&&arena.map_id==THIEVES_MAP)music=AUDIO_THIEVES;

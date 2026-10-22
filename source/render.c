@@ -22,6 +22,10 @@
 #include "flood_actor_art.h"
 #include "flood_art.h"
 #include "campaign_flood.h"
+#include "camp_art.h"
+#include "bear_art.h"
+#include "camp_actor_art.h"
+#include "campaign_camp.h"
 #include "campaign_deer.h"
 #include "forest_thief_art.h"
 #include "thieves_thief_art.h"
@@ -49,6 +53,8 @@
 #include "war_alternate_art.h"
 #include "original_worldmap.h"
 #include "pet_art.h"
+#include "pet_extra_art.h"
+#include "chapter_assets.h"
 #include "dig_art.h"
 #include "bridge_art.h"
 #include "war_machine_art.h"
@@ -131,7 +137,7 @@ static const uint16_t *active_terrain_palette;
    level adds one case to each helper. */
 static const uint16_t *map_palette(unsigned map){
     switch(map){
-    case 15:return campaign_flood_palette;case 14:return campaign_deer_palette;case 13:return campaign_thieves_palette;case 12:return campaign_forest_palette;case 11:return campaign_boss_palette;
+    case 16:return campaign_camp_palette;case 15:return campaign_flood_palette;case 14:return campaign_deer_palette;case 13:return campaign_thieves_palette;case 12:return campaign_forest_palette;case 11:return campaign_boss_palette;
     case 10:return campaign_frog_palette;case 9:return campaign_ark_palette;case 8:return campaign_blacksmith_palette;
     case 7:return campaign_bridge_palette;case 6:return campaign_war_palette;case 5:return campaign_barracks_palette;
     case 4:return campaign_shop_palette;default:return campaign_world_palette;
@@ -139,7 +145,7 @@ static const uint16_t *map_palette(unsigned map){
 }
 static int map_rows(unsigned map,unsigned strip,unsigned first,unsigned count,uint8_t *out){
     switch(map){
-    case 15:return campaign_flood_decode_rows(strip,first,count,out);case 14:return campaign_deer_decode_rows(strip,first,count,out);case 13:return campaign_thieves_decode_rows(strip,first,count,out);case 12:return campaign_forest_decode_rows(strip,first,count,out);
+    case 16:return campaign_camp_decode_rows(strip,first,count,out);case 15:return campaign_flood_decode_rows(strip,first,count,out);case 14:return campaign_deer_decode_rows(strip,first,count,out);case 13:return campaign_thieves_decode_rows(strip,first,count,out);case 12:return campaign_forest_decode_rows(strip,first,count,out);
     case 11:return campaign_boss_decode_rows(strip,first,count,out);case 10:return campaign_frog_decode_rows(strip,first,count,out);
     case 9:return campaign_ark_decode_rows(strip,first,count,out);case 8:return campaign_blacksmith_decode_rows(strip,first,count,out);
     case 7:return campaign_bridge_decode_rows(strip,first,count,out);case 6:return campaign_war_decode_rows(strip,first,count,out);
@@ -149,14 +155,14 @@ static int map_rows(unsigned map,unsigned strip,unsigned first,unsigned count,ui
 }
 static unsigned map_fg_count(unsigned map){
     switch(map){
-    case 15:return CAMPAIGN_FLOOD_FG_COUNT;case 14:return CAMPAIGN_DEER_FG_COUNT;case 13:return CAMPAIGN_THIEVES_FG_COUNT;case 12:return CAMPAIGN_FOREST_FG_COUNT;case 11:return CAMPAIGN_BOSS_FG_COUNT;
+    case 16:return CAMPAIGN_CAMP_FG_COUNT;case 15:return CAMPAIGN_FLOOD_FG_COUNT;case 14:return CAMPAIGN_DEER_FG_COUNT;case 13:return CAMPAIGN_THIEVES_FG_COUNT;case 12:return CAMPAIGN_FOREST_FG_COUNT;case 11:return CAMPAIGN_BOSS_FG_COUNT;
     case 10:return CAMPAIGN_FROG_FG_COUNT;case 9:return CAMPAIGN_ARK_FG_COUNT;case 8:return CAMPAIGN_BLACKSMITH_FG_COUNT;
     case 7:return CAMPAIGN_BRIDGE_FG_COUNT;case 6:return CAMPAIGN_WAR_FG_COUNT;case 3:return CAMPAIGN_WORLD_FG_COUNT;default:return 0;
     }
 }
 static const CampaignRouteLayer *map_fg_layer_or_null(unsigned map,unsigned layer){
     switch(map){
-    case 15:return &campaign_flood_fg_layers[layer];case 14:return &campaign_deer_fg_layers[layer];case 13:return &campaign_thieves_fg_layers[layer];case 12:return &campaign_forest_fg_layers[layer];case 11:return &campaign_boss_fg_layers[layer];
+    case 16:return &campaign_camp_fg_layers[layer];case 15:return &campaign_flood_fg_layers[layer];case 14:return &campaign_deer_fg_layers[layer];case 13:return &campaign_thieves_fg_layers[layer];case 12:return &campaign_forest_fg_layers[layer];case 11:return &campaign_boss_fg_layers[layer];
     case 10:return &campaign_frog_fg_layers[layer];case 9:return &campaign_ark_fg_layers[layer];case 8:return &campaign_blacksmith_fg_layers[layer];
     case 7:return &campaign_bridge_fg_layers[layer];case 6:return &campaign_war_fg_layers[layer];default:return NULL;
     }
@@ -166,7 +172,7 @@ static int map_fg_depth(unsigned map,unsigned layer){
 }
 static int map_fg_decode(unsigned map,unsigned layer,uint8_t *out){
     switch(map){
-    case 15:return campaign_flood_decode_fg(layer,out);case 14:return campaign_deer_decode_fg(layer,out);case 13:return campaign_thieves_decode_fg(layer,out);case 12:return campaign_forest_decode_fg(layer,out);case 11:return campaign_boss_decode_fg(layer,out);
+    case 16:return campaign_camp_decode_fg(layer,out);case 15:return campaign_flood_decode_fg(layer,out);case 14:return campaign_deer_decode_fg(layer,out);case 13:return campaign_thieves_decode_fg(layer,out);case 12:return campaign_forest_decode_fg(layer,out);case 11:return campaign_boss_decode_fg(layer,out);
     case 10:return campaign_frog_decode_fg(layer,out);case 9:return campaign_ark_decode_fg(layer,out);case 8:return campaign_blacksmith_decode_fg(layer,out);
     case 7:return campaign_bridge_decode_fg(layer,out);case 6:return campaign_war_decode_fg(layer,out);default:return campaign_world_decode_fg(layer,out);
     }
@@ -344,17 +350,18 @@ _Static_assert(DASH_ATTACK_PIXELS_MAX<=sizeof(world_foreground),"Dash scratch fi
 _Static_assert(LOBBY_ART_PIXELS_MAX<=sizeof(world_foreground),"Lobby art fits the scenery workspace");
 _Static_assert(THIEVES_SCENE_FRAME_PIXELS_MAX<=sizeof(world_foreground),"Cutscene frames fit the scenery workspace");
 static uint8_t hero_cache[3][KNIGHT_WEAPON_FRAME_PIXELS_MAX];
-#define ENEMY_CACHE_PIXELS (MOTHER_FRAME_PIXELS_MAX>BARBARIAN_FRAME_PIXELS_MAX?MOTHER_FRAME_PIXELS_MAX:BARBARIAN_FRAME_PIXELS_MAX)
+#define ENEMY_CACHE_BASE (MOTHER_FRAME_PIXELS_MAX>BARBARIAN_FRAME_PIXELS_MAX?MOTHER_FRAME_PIXELS_MAX:BARBARIAN_FRAME_PIXELS_MAX)
+#define ENEMY_CACHE_PIXELS (BEAR_FRAME_PIXELS_MAX>ENEMY_CACHE_BASE?BEAR_FRAME_PIXELS_MAX:ENEMY_CACHE_BASE)
 static uint8_t enemy_cache[6][ENEMY_CACHE_PIXELS] __attribute__((aligned(32)));
 /* Enemy species art shares the thief pose layout; weapon bits 5..7 select it (species.h). */
 static const ArtFrame *species_frame(unsigned sp,unsigned id){
-    switch(sp){case SPECIES_TROLL:return &troll_frames[id];case SPECIES_IMP:return &imp_frames[id];case SPECIES_TROLL_MOTHER:return &mother_frames[id];default:return NULL;}
+    switch(sp){case SPECIES_TROLL:return &troll_frames[id];case SPECIES_IMP:return &imp_frames[id];case SPECIES_TROLL_MOTHER:return &mother_frames[id];case SPECIES_BEAR:return &bear_frames[id];default:return NULL;}
 }
 static const uint16_t *species_palette(unsigned sp){
-    switch(sp){case SPECIES_TROLL:return troll_palette;case SPECIES_IMP:return imp_palette;default:return mother_palette;}
+    switch(sp){case SPECIES_TROLL:return troll_palette;case SPECIES_IMP:return imp_palette;case SPECIES_BEAR:return bear_palette;default:return mother_palette;}
 }
 static int species_decode(unsigned sp,unsigned id,uint8_t *out){
-    switch(sp){case SPECIES_TROLL:return troll_decode_frame(id,out);case SPECIES_IMP:return imp_decode_frame(id,out);case SPECIES_TROLL_MOTHER:return mother_decode_frame(id,out);default:return 0;}
+    switch(sp){case SPECIES_TROLL:return troll_decode_frame(id,out);case SPECIES_IMP:return imp_decode_frame(id,out);case SPECIES_TROLL_MOTHER:return mother_decode_frame(id,out);case SPECIES_BEAR:return bear_decode_frame(id,out);default:return 0;}
 }
 static int knight_cache_id[9]={-1,-1,-1,-1,-1,-1,-1,-1,-1};
 static int knight_cache_weapon[9]={-1,-1,-1,-1,-1,-1,-1,-1,-1};
@@ -603,7 +610,37 @@ static void water_ripples(int x,int y,unsigned seed,int moving){
         raster_rect(&view,x-w,y-h,2*w,1,phase<7?RGB(24,29,31):RGB(16,24,28),y+1);
     }
 }
+/* Rammy, Burly Bear and Hawkster have no resident art: every chapter bank carries a copy (tools/pet_extra.py). */
+static const uint8_t *pet_extra_blob(void){
+    static const uint8_t *const blobs[CHAPTER_CAMP+1]={pet_extra_arenas,pet_extra_keep,pet_extra_war,pet_extra_hubs,pet_extra_boss,pet_extra_forest,pet_extra_thieves,pet_extra_deer,pet_extra_flood,pet_extra_camp};
+#if defined(ARM9) || defined(CHAPTER_ASSETS_TEST)
+    for(unsigned i=0;i<=CHAPTER_CAMP;i++)if(chapter_assets_ready(i))return blobs[i];
+    return 0;
+#else
+    return blobs[0];
+#endif
+}
+static int pet_extra_pixels(const uint8_t *blob,unsigned id,uint8_t *out){
+    const uint8_t *at=blob+PET_EXTRA_PIXELS_OFFSET+(unsigned)((blob[PET_EXTRA_FRAMES_OFFSET+12*id])|(blob[PET_EXTRA_FRAMES_OFFSET+12*id+1]<<8)|(blob[PET_EXTRA_FRAMES_OFFSET+12*id+2]<<16)|(blob[PET_EXTRA_FRAMES_OFFSET+12*id+3]<<24));
+    unsigned w=blob[PET_EXTRA_FRAMES_OFFSET+12*id+8]|(blob[PET_EXTRA_FRAMES_OFFSET+12*id+9]<<8),h=blob[PET_EXTRA_FRAMES_OFFSET+12*id+10]|(blob[PET_EXTRA_FRAMES_OFFSET+12*id+11]<<8),left=w*h;
+    while(left){unsigned token=*at++,n=(token&127)+1;if(n>left)return 0;if(token&128){unsigned v=*at++;for(unsigned j=0;j<n;j++)*out++=(uint8_t)v;}else for(unsigned j=0;j<n;j++)*out++=*at++;left-=n;}
+    return 1;
+}
+static int draw_pet_extra(unsigned id,int x,int y,int facing,unsigned tick,unsigned happy){
+    unsigned index=id==3?0:id==6?1:id==16?2:3;if(index>2)return 0;
+    const uint8_t *blob=pet_extra_blob();if(!blob)return 1;
+    unsigned sample=0,base=index*PET_EXTRA_FRAMES_PER_PET,count=sizeof pet_extra_follow;const uint8_t *frames=pet_extra_follow;
+    if(happy){base+=sizeof pet_extra_follow;frames=pet_extra_happy;count=sizeof pet_extra_happy;tick=60-happy;if(tick>48)tick=48;}else tick%=14;
+    while(sample+1<count&&frames[sample+1]<=tick+1)sample++;
+    unsigned frame=base+sample;const uint8_t *e=blob+PET_EXTRA_FRAMES_OFFSET+12*frame;
+    int fx=(int16_t)(e[4]|(e[5]<<8)),fy=(int16_t)(e[6]|(e[7]<<8));unsigned w=e[8]|(e[9]<<8),h=e[10]|(e[11]<<8);
+    int left=x+(facing<0?-fx-(int)w+1:fx),top=y-18+fy;
+    water_ripples(x,y,x,0);
+    if(sprite_visible(left,top,w,h)&&pet_extra_pixels(blob,frame,world_foreground))raster_sprite(&view,world_foreground,(const uint16_t*)blob,left,top,w,h,facing<0,16,h,y);
+    return 1;
+}
 static void draw_pet(unsigned id,int x,int y,int facing,unsigned tick,unsigned happy){
+    if(draw_pet_extra(id,x,y,facing,tick,happy))return;
     unsigned frame=pet_art_frame(id,happy?PET_ART_HAPPY:PET_ART_FOLLOW,happy?60-happy:tick);
     if(frame>=PET_FRAME_COUNT)return;
     const ArtFrame *f=&pet_frames[frame];
@@ -707,6 +744,23 @@ static void boss_door_picture(unsigned id){
     if(!sprite_visible(x,y,f->w,f->h)||!boss_door_decode(id,world_foreground))return;
     raster_sprite(&view,world_foreground,boss_door_palette,x,y,f->w,f->h,0,16,f->h,BOSS_DOOR_Y);
 }
+/* The opening scene (LEVEL7 sprite 281) uses a scripted camera at one fixed zoom, so the picture never rescales and never cuts: it holds on the party and
+   the captives, eases over to the gate for the knock, the little barbarians and the falling door, then follows the boss walking in (it leaves the gate at
+   tick 179 and moves 2 units a tick), and over the last 40 ticks eases into the ordinary fight framing. */
+#define BOSS_INTRO_BLEND 259u
+static int boss_intro_ease(int from,int to,int u,int span){
+    if(u<=0)return from;
+    if(u>=span)return to;
+    int q=u*256/span,s=(q*q*(768-2*q))>>16;
+    return from+(to-from)*s/256;
+}
+static void boss_intro_camera(ArenaCamera *cam,const Campaign *c){
+    const int party_cx=310,gate_cx=BOSS_DOOR_X-31;
+    int t=(int)c->timer,cx=party_cx;
+    if(t>=10)cx=boss_intro_ease(party_cx,gate_cx,t-10,60);
+    if(t>=179){int follow=c->war.machine.x-20;cx=boss_intro_ease(gate_cx,follow,t-179,40);if(t>=219)cx=follow;}
+    cam->width=288;cam->height=216;cam->x=cx-144;cam->y=130;cam->ready=1;
+}
 static void boss_door_draw(const Campaign *c){
     unsigned t=c->phase==BOSS_INTRO?c->timer:100000u,step=0;
     if(t>=35){unsigned frame=2+(t-35);for(unsigned i=1;i<BOSS_DOOR_STEPS;i++)if(boss_door_steps[i][0]<=frame)step=i;}
@@ -722,39 +776,75 @@ static void flood_sprite(unsigned group,unsigned key,int x,int y,int depth,int f
     raster_sprite(&view,world_foreground,flood_actor_palette,left,top,f->w,f->h,flip,16,f->h,depth);
 }
 static int flood_hero(const Fighter *p,int index){
-    if(p->hp<=0||p->z||(p->pose!=POSE_IDLE&&p->pose!=POSE_WALK))return 0;
-    unsigned c=(unsigned)(p->knight_id&3u),k=(unsigned)(sprite_tick/3u);
-    flood_sprite((p->pose==POSE_WALK?FA_SWIM_WALK_BLUE:FA_SWIM_STAND_BLUE)+c*3u-(p->pose==POSE_WALK?0u:0u),k%6u,p->x,p->y,p->y,p->facing<0);
-    (void)index;return 1;
-}
-static void flood_enemy(const Fighter *p){
-    int flip=p->facing>0,x=p->x,y=p->y-p->z;unsigned t=(unsigned)sprite_tick;
-    switch(p->knight_id){
-    case 0:flood_sprite(FA_BAT,(t/3u)%6u,x,y-34-(int)((t/6u)&1u)*2,p->y,flip);break;
-    case 1:{
-        unsigned attack=p->pose>=POSE_ATTACK&&p->pose<=POSE_FINISHER;
-        if(p->hp<=0){flood_sprite(FA_CAT_DIE,p->animation/6u,x,y,p->y,flip);break;}
-        if(attack)flood_sprite(p->pose==POSE_ATTACK?FA_CAT_PUNCH1:p->pose==POSE_LIGHT2?FA_CAT_PUNCH2:FA_CAT_PUNCH3,(unsigned)p->animation/3u,x,y,p->y,flip);
-        else flood_sprite(FA_CAT_IDLE,(t/8u)%4u,x,y,p->y,flip);
-        break;}
-    default:
-        if(p->hp<=0)flood_sprite(FA_FISH_DIE,p->animation/6u,x,y,p->y,flip);
-        else if(p->pose==POSE_HURT||p->pose==POSE_AIRHURT||p->hitstun)flood_sprite(FA_FISH_HIT,(t/3u)%5u,x,y,p->y,flip);
-        else if(p->z||(p->pose>=POSE_ATTACK&&p->pose<=POSE_FINISHER))flood_sprite(FA_FISH_JUMP,(unsigned)p->animation/3u,x,y,p->y,flip);
-        else flood_sprite(FA_FISH_IDLE,(t/6u)%6u,x,y,p->y,flip);
+    unsigned c=(unsigned)(p->knight_id&3u),k=(unsigned)(sprite_tick/3u),base=FA_SWIM_STAND_BLUE+c*4u;
+    int ride=campaign_state&&((campaign_state->mount_mask>>(6+index))&1);
+    if(p->hp>0&&p->pose==FLOOD_POSE_BAT){flood_sprite(base+2u,(unsigned)p->animation,p->x,p->y,p->y,p->facing<0);return 1;}
+    if(p->hp<=0)return 0;
+    if(ride){ /* standing on the log (logstand, logwalk): the log under the knight, who sits ten pixels up */
+        flood_sprite(FA_LOG,1u+(p->pose==POSE_WALK&&((sprite_tick/6)&1)),p->x,p->y,p->y-1,p->facing<0);
+        if(!p->z&&(p->pose==POSE_IDLE||p->pose==POSE_WALK)){flood_sprite(base+3u,(unsigned)(sprite_tick/6)%4u,p->x,p->y-10,p->y,p->facing<0);return 1;}
+        return 0;
     }
+    if(p->z||(p->pose!=POSE_IDLE&&p->pose!=POSE_WALK))return 0;
+    flood_sprite(base+(p->pose==POSE_WALK?1u:0u),k%6u,p->x,p->y,p->y,p->facing<0);
+    return 1;
 }
-static void flood_scene_draw(const Campaign *c,int low,int high){
+static void flood_enemy(const Fighter *p,unsigned species){
+    int flip=p->facing>0,x=p->x,y=p->y-p->z;unsigned t=(unsigned)sprite_tick,anim=(unsigned)(p->animation>0?p->animation:0);
+    if(species==FLOOD_BAT){flood_sprite(FA_BAT,(t/3u)%6u,x,y,p->y,flip);return;}
+    if(species==FLOOD_CAT){
+        if(p->hp<=0)flood_sprite(FA_CAT_DIE,anim/9u,x,y,p->y,flip);
+        else if(p->pose==POSE_ATTACK)flood_sprite(FA_CAT_PUNCH1,anim,x,y,p->y,flip);
+        else if(p->pose==POSE_LIGHT2)flood_sprite(FA_CAT_PUNCH2,anim,x,y,p->y,flip);
+        else if(p->pose==POSE_LIGHT3)flood_sprite(FA_CAT_PUNCH3,anim,x,y,p->y,flip);
+        else if(p->pose==POSE_HURT)flood_sprite(FA_CAT_INTRO,(t/4u)%4u,x,y,p->y,flip);
+        else flood_sprite(FA_CAT_IDLE,(t/8u)%4u,x,y,p->y,flip);
+        return;
+    }
+    if(p->hp<=0)flood_sprite(FA_FISH_DIE,anim/9u,x,y,p->y,flip);
+    else if(p->pose==POSE_HURT||p->pose==POSE_AIRHURT||p->hitstun)flood_sprite(FA_FISH_HIT,(t/3u)%5u,x,y,p->y,flip);
+    else if(p->pose==POSE_ATTACK)flood_sprite(FA_FISH_JUMP,anim*7u/10u,x,y,p->y,flip);
+    else if(p->pose==POSE_HEAVY)flood_sprite(FA_FISH_CHARGE,anim,x,y,p->y,flip);
+    else flood_sprite(FA_FISH_IDLE,(t/6u)%6u,x,y,p->y,flip);
+}
+/* The Catfish's hairball and the king boat's cannon ball travel in the machine slot. */
+static void flood_projectile(const Fighter *p){
+    if(p->attack_kind==1)flood_sprite(FA_BALL,0,p->x,p->y-p->z,p->y,0);else flood_sprite(FA_SPIT,(unsigned)p->animation,p->x,p->y-p->z,p->y,0);
+}
+static void flood_scene_draw(const Arena *a,const Campaign *c,int low,int high){
     FloodObject o[FLOOD_ROCK_LIMIT];
     unsigned n=campaign_flood_rocks(c->timer,o);
     for(unsigned i=0;i<n;i++)if(o[i].y>=low&&o[i].y<high)flood_sprite(FA_ROCK,0,o[i].x,o[i].y,o[i].y,0);
-    n=campaign_flood_fins(c->timer,o);
+    n=campaign_flood_fins(c->break_tick,o);
     for(unsigned i=0;i<n;i++)if(o[i].y>=low&&o[i].y<high)flood_sprite(FA_FIN,0,o[i].x,o[i].y,o[i].y,0);
-    if(c->break_tick>=1676&&FLOOD_KINGBOAT_Y>=low&&FLOOD_KINGBOAT_Y<high)flood_sprite(FA_BOAT,0,FLOOD_KINGBOAT_X,FLOOD_KINGBOAT_Y,FLOOD_KINGBOAT_Y,0);
+    if(c->break_tick>=1571&&c->break_tick<1571+112&&c->group==0&&FLOOD_ANGRY_Y>=low&&FLOOD_ANGRY_Y<high){ /* the angry fish and the king boat's first shots (sprite 333) */
+        unsigned age=c->break_tick-1571u,key=age<16?0:age<24?1:age<32?2:age<40?3:age<48?4:age<56?5:age<64?6:age<72?7:age<100?8:9;
+        flood_sprite(FA_ANGRY,key,FLOOD_ANGRY_X,FLOOD_ANGRY_Y,FLOOD_ANGRY_Y,0);
+    }
+    if(c->phase!=WAR_COMPLETE&&(c->group==1||c->break_tick>=1676)&&FLOOD_KINGBOAT_Y>=low&&FLOOD_KINGBOAT_Y<high)flood_sprite(FA_BOAT,c->war.machine.ready&&c->war.machine.attack_kind==1&&c->war.machine.x-campaign_flood_boat_x(a)<20,campaign_flood_boat_x(a),FLOOD_KINGBOAT_Y,FLOOD_KINGBOAT_Y,0);
+}
+/* LEVEL20: the bear boss dances, the beefy bears fly in on a propeller, and bats cross the screen (tools/camp_actors.py). */
+static void camp_sprite(unsigned group,unsigned key,int x,int y,int depth,int flip){
+    const CampGroup *g=&camp_groups[group];if(!g->count)return;
+    unsigned id=g->first+(key<g->count?key:g->count-1u);const ArtFrame *f=&camp_actor_frames[id];if(!f->w)return;
+    int left=x+(flip?-f->x-f->w+1:f->x),top=y+f->y;
+    if(!sprite_visible(left,top,f->w,f->h)||!camp_actor_decode(id,world_foreground))return;
+    raster_sprite(&view,world_foreground,camp_actor_palette,left,top,f->w,f->h,flip,16,f->h,depth);
+}
+static int camp_enemy(const Fighter *p,unsigned species){
+    int flip=p->facing>0;
+    if(species==SPECIES_BAT){camp_sprite(CA_BAT,(unsigned)(sprite_tick/3)%6u,p->x,p->y-p->z,p->y,flip);return 1;}
+    if(species==SPECIES_BEAR&&p->hp>0){
+        if(p->pose==POSE_DIG){camp_sprite(CA_PROPELLER,(unsigned)(sprite_tick/2)%9u,p->x,p->y-p->z,p->y,flip);return 1;}
+        if(p->pose==POSE_THROW){camp_sprite(CA_TORNADO,(unsigned)(sprite_tick/2)%2u,p->x,p->y-p->z,p->y,flip);return 1;}
+        if(p->pose==POSE_CAST&&campaign_state&&campaign_state->phase==WAR_FIGHT&&campaign_state->group==CAMP_EV_BOSS&&campaign_state->timer<120){camp_sprite(CA_DANCE,(unsigned)(p->animation>0?p->animation:0),p->x,p->y,p->y,flip);return 1;}
+    }
+    return 0;
 }
 static void knight(uint16_t *pixels,const Fighter *p,int index){
     if(index>=9){neutral_actor(p,index);return;}
-    if(render_map==FLOOD_MAP&&campaign_state){if(index>=2){flood_enemy(p);return;}if(flood_hero(p,index))return;}
+    if(render_map==CAMP_MAP&&campaign_state&&index>=2&&index<8&&camp_enemy(p,campaign_state->species[index-2]))return;
+    if(render_map==FLOOD_MAP&&campaign_state){if(index>=2&&index<8){flood_enemy(p,campaign_state->species[index-2]);return;}if(index<2&&flood_hero(p,index))return;}
     if(index<2&&render_map==DEER_MAP&&campaign_state&&deer_hero(p,index))return;
     if(index<2&&p->hp>0&&barracks_dancing()){dance_sprite(p->knight_id&3u,(unsigned)index,(unsigned)index*5u,p->x,p->y,0,p->y);return;}
     if(index<2&&campaign_state&&campaign_state->phase==BOSS_FIGHT){
@@ -860,7 +950,7 @@ static void knight(uint16_t *pixels,const Fighter *p,int index){
     if(pose==POSE_HEAVY3)pose=POSE_AIRHEAVY;else if(pose==POSE_STOMP)pose=POSE_HEAVY2;else if(pose==POSE_DASHPUNCH)pose=POSE_ROLL;else if(pose==POSE_DASHSLAM)pose=POSE_AIRHEAVY;
     int frame=knight_frame(p,pose);
     int id=(enemy||gray?0:p->knight_id*KNIGHT_FRAMES_PER_COLOR)+pose_start[pose]+frame;
-    if(species&&species!=SPECIES_TROLL_MOTHER&&pose==POSE_DEAD){
+    if(species&&species!=SPECIES_TROLL_MOTHER&&species!=SPECIES_BEAR&&pose==POSE_DEAD){
         /* Troll and imp deaths play their whole source clip, twelve stages held for four ticks each, stored in the cast pose slot (tools/species_art.py). */
         int k=(p->animation<0?0:p->animation>43?43:p->animation)/4;
         id=pose_start[POSE_CAST]+k;
@@ -1072,7 +1162,7 @@ void arena_render(const Arena *a,uint16_t *pixels){
         framing.p[0].x=left;framing.p[0].y=top;framing.p[0].z=0;
         framing.p[1].x=right;framing.p[1].y=bottom;framing.p[1].z=0;framing.p[1].ready=1;
     }
-    if(a->map_id==BOSS_MAP&&campaign_state&&campaign_state->war.machine.ready&&campaign_state->phase!=BOSS_INTRO){
+    if(a->map_id==BOSS_MAP&&campaign_state&&campaign_state->war.machine.ready&&(campaign_state->phase!=BOSS_INTRO||campaign_state->timer>=BOSS_INTRO_BLEND)){
         const Fighter *m=&campaign_state->war.machine;
         int left=a->p[0].x,right=left,top=a->p[0].y-a->p[0].z,bottom=a->p[0].y;
         for(int h=0;h<2;h++)if(a->p[h].ready&&a->p[h].hp){if(a->p[h].x<left)left=a->p[h].x;if(a->p[h].x>right)right=a->p[h].x;if(a->p[h].y-a->p[h].z<top)top=a->p[h].y-a->p[h].z;if(a->p[h].y>bottom)bottom=a->p[h].y;}
@@ -1084,17 +1174,6 @@ void arena_render(const Arena *a,uint16_t *pixels){
         if(m->y>bottom)bottom=m->y;
         framing.p[0].x=left;framing.p[0].y=top;framing.p[0].z=0;framing.p[0].hp=1;framing.p[0].ready=1;
         framing.p[1].x=right;framing.p[1].y=bottom;framing.p[1].z=0;framing.p[1].hp=1;framing.p[1].ready=1;
-    }
-    if(a->map_id==BOSS_MAP&&campaign_state&&campaign_state->phase==BOSS_INTRO&&campaign_state->timer<299){
-        /* The opening party stands to the left of the three carried captives
-           and fourth princess's post. Frame the scene before the boss arrives,
-           then the party and the boss walking in from the gate until the fight is released at frame 299. */
-        int hero_x=a->p[0].ready?a->p[0].x:a->p[1].x;if(a->p[0].ready&&a->p[1].ready&&a->p[1].x<hero_x)hero_x=a->p[1].x;
-        if(campaign_state->timer>=35&&campaign_state->timer<179){if(hero_x<BOSS_DOOR_X-330)hero_x=BOSS_DOOR_X-330;} /* The camera looks at the gate while the little barbarians fall and the door comes down. */
-        if(campaign_state->timer>=179){int boss_left=campaign_state->war.machine.x-300;if(hero_x<boss_left)hero_x=boss_left;} /* Then it follows the boss in from the gate. */
-        framing.p[0].x=hero_x;framing.p[0].y=campaign_state->timer<179?124:316;framing.p[0].z=0;
-        framing.p[1].x=campaign_state->timer<35?519:campaign_state->timer<179?BOSS_DOOR_X+40:campaign_state->war.machine.x+40;framing.p[1].y=336;framing.p[1].z=0;
-        framing.p[0].hp=framing.p[1].hp=1;framing.p[0].ready=framing.p[1].ready=1;
     }
     static ArenaCamera pan_origin,pan_return;static int previous_phase=-1;
     int phase=campaign_state?campaign_state->phase:-1;
@@ -1129,6 +1208,22 @@ void arena_render(const Arena *a,uint16_t *pixels){
         unsigned t=campaign_state->timer;if(t>18)t=18;
         camera=target;camera.x=pan_origin.x+(target.x-pan_origin.x)*(int)t/18;camera.y=pan_origin.y+(target.y-pan_origin.y)*(int)t/18;
         camera.width=pan_origin.width+(target.width-pan_origin.width)*(int)t/18;camera.height=camera.width*3/4;
+    }else if(campaign_state&&a->map_id==BOSS_MAP&&phase==BOSS_INTRO){
+        ArenaCamera script={.round=a->round};boss_intro_camera(&script,campaign_state);
+        if(campaign_state->timer>=BOSS_INTRO_BLEND){
+            ArenaCamera fight={0};camera_update(&fight,&framing);
+            int u=(int)campaign_state->timer-(int)BOSS_INTRO_BLEND;
+            script.x=boss_intro_ease(script.x,fight.x,u,40);script.y=boss_intro_ease(script.y,fight.y,u,40);
+            script.width=boss_intro_ease(script.width,fight.width,u,40);script.height=script.width*3/4;
+        }
+        camera=script;
+        int shake=(int)campaign_boss_intro_shake(campaign_state);
+        if(shake){camera.x+=(a->tick&1)?shake:-shake;camera.y+=(a->tick&2)?shake/2+1:-(shake/2+1);}
+    }else if(campaign_state&&a->map_id==CAMP_MAP&&phase==WAR_FIGHT&&campaign_state->group==CAMP_EV_STORY){
+        /* Source cinema_cam guide: pans 206 units right over clip frames 22 to 54, holds, returns by frame 92. */
+        int t=(int)campaign_state->timer,off=206;
+        if(t<5)off=0;else if(t<37)off=boss_intro_ease(0,206,t-5,32);else if(t>=43)off=boss_intro_ease(206,0,t-43,32);
+        camera=(ArenaCamera){.round=a->round,.width=288,.height=216,.x=CAMP_STORY_X-80+off-144,.y=0,.ready=1};
     }else{
         if(campaign_state&&a->map_id==THIEVES_MAP)stage_shake=(int)thieves_scene_shake(campaign_state);
         if(campaign_state&&a->map_id==DEER_MAP)stage_shake=(int)campaign_deer_shake(campaign_state);
@@ -1163,6 +1258,7 @@ void arena_render(const Arena *a,uint16_t *pixels){
     if(campaign_state&&a->map_id==THIEVES_MAP&&phase==WAR_FIGHT){
         int left,right;campaign_thieves_leash(campaign_state,&left,&right);camera_limit_horizontal(&camera,a,left-camera.width/2,right+camera.width/2); /* The leash marks where the heroes may stand; the screen centres on it, as when the encounter begins. */
     }
+    if(campaign_state&&a->map_id==CAMP_MAP&&phase==WAR_FIGHT){int left,right;campaign_camp_leash(campaign_state,&left,&right);camera_limit_horizontal(&camera,a,left-camera.width/2,right+camera.width/2);} /* The leash holds the screen on the encounter. */
     if(campaign_state&&a->map_id==DEER_MAP){int cx=campaign_deer_camera_x(campaign_state);camera_limit_horizontal(&camera,a,cx-camera.width/2,cx+camera.width/2);} /* The camera rides the chase guide, not the heroes. */
     if(campaign_state&&a->map_id==FOREST_MAP){
         int left,right;campaign_forest_leash(campaign_state,&left,&right);
@@ -1335,6 +1431,7 @@ void arena_render(const Arena *a,uint16_t *pixels){
                 }
                 continue;
             }
+            if(item->kind==DROP_CROC&&render_map==FLOOD_MAP){if(sprite_visible(item->x-40,item->y-40,80,80))flood_sprite(FA_LOG,0,item->x,item->y,item->y,0);continue;}
             if(item->kind==DROP_CROC&&render_map!=FOREST_MAP)continue;
             if(item->kind==DROP_CROC){
                 const ForestCrocFrame *cf=&forest_croc_frames[0];int flip=item->value&1,cx=item->x+(flip?-(cf->x+cf->w-1):cf->x),cy=item->y+cf->y;
@@ -1403,7 +1500,7 @@ void arena_render(const Arena *a,uint16_t *pixels){
                     int x=917+(piece-2)*(int)age/2,y=333-18-(int)(age*(26-age))/12;
                     if(campaign_breakable_decode(9+piece,world_foreground))raster_sprite(&view,world_foreground,campaign_breakable_palette,x+f->x,y+f->y,f->w,f->h,0,16,f->h,333);
                 }
-            }else if(player==8&&campaign_state&&campaign_state->war.machine.ready){if(a->map_id==BOSS_MAP)boss_actor_picture(actor->attack_kind,actor->animation,actor->x,actor->y,actor->facing<0,actor->y);else machine_actor(actor);}
+            }else if(player==8&&campaign_state&&campaign_state->war.machine.ready){if(a->map_id==BOSS_MAP)boss_actor_picture(actor->attack_kind,actor->animation,actor->x,actor->y,actor->facing<0,actor->y);else if(a->map_id==FLOOD_MAP)flood_projectile(actor);else if(a->map_id==CAMP_MAP&&actor->attack_kind==1){raster_rect(&view,actor->x-(actor->facing<0?0:12),actor->y-actor->z,12,1,RGB(20,14,6),actor->y);raster_rect(&view,actor->x-(actor->facing<0?2:0),actor->y-actor->z-1,3,3,RGB(26,26,26),actor->y);}else if(a->map_id==CAMP_MAP)camp_sprite(CA_WIND,(unsigned)actor->animation,actor->x,actor->y-actor->z,actor->y,0);else machine_actor(actor);}
             else knight(pixels,actor,player);
             view.foreground_reject=NULL;
             if(player>=2&&player<9)effects_status_view(&view,actor);
@@ -1411,7 +1508,8 @@ void arena_render(const Arena *a,uint16_t *pixels){
         }
         if(a->map_id==THIEVES_MAP&&campaign_state)thieves_scene_draw(a,campaign_state,low,high);
         if(a->map_id==DEER_MAP&&campaign_state)deer_scene_draw(a,campaign_state,low,high);
-        if(a->map_id==FLOOD_MAP&&campaign_state)flood_scene_draw(campaign_state,low,high);
+        if(a->map_id==FLOOD_MAP&&campaign_state)flood_scene_draw(a,campaign_state,low,high);
+        if(a->map_id==CAMP_MAP&&campaign_state&&campaign_state->phase==WAR_FIGHT&&campaign_state->group==CAMP_EV_STORY&&CAMP_STORY_Y+8>=low&&CAMP_STORY_Y+8<high)camp_sprite(CA_STORY,campaign_state->timer/12u,CAMP_STORY_X,CAMP_STORY_Y,CAMP_STORY_Y+8,0);
         if(a->map_id==WAR_MAP){
             for(unsigned i=0;i<2;i++){
                 const Projectile *p=&a->shots[i];if(!p->life||p->owner!=8||p->y<low||p->y>=high)continue;
@@ -1689,7 +1787,7 @@ void arena_render_movie(uint16_t *pixels,unsigned map,unsigned kind,unsigned tic
    cache. Decompression happens once per entry, not each animated map frame. */
 _Static_assert(672*192<=sizeof(arena_mask),"World map reuses scenery RAM");
 void arena_render_world_map(uint16_t *pixels,const Campaign *c,const Arena *a){
-    static const char *names[]={"BLACKSMITH","HOME CASTLE","CASTLE KEEP","BARBARIAN WAR","BARBARIAN BOSS","FOREST ENTRANCE","THIEVES' FOREST","MILL RUN","FLOODED CASTLE"};
+    static const char *names[]={"BLACKSMITH","HOME CASTLE","CASTLE KEEP","BARBARIAN WAR","BARBARIAN BOSS","FOREST ENTRANCE","THIEVES' FOREST","MILL RUN","FLOODED CASTLE","TALL GRASS FIELD"};
     unsigned selected=c->group<CAMPAIGN_WORLD_NODES?c->group:1;
     int wx,wy;campaign_world_position(c,&wx,&wy);
     /* The 192 row window starts at map row 32, or at row 0 near the northern nodes (Mill Run lies above row 64). */
@@ -1724,7 +1822,8 @@ void arena_render_world_map(uint16_t *pixels,const Campaign *c,const Arena *a){
         }
     }
     rect(pixels,0,171,256,21,RGB(3,5,8));
-    if(selected==8&&!(c->completed&64)){menu_text(pixels,6,178,"FLOODED CASTLE",RGB(31,29,20));menu_text(pixels,130,178,"CLEAR MILL RUN",RGB(25,23,18));}
+    if(selected==9&&!(c->completed&128)){menu_text(pixels,6,178,"TALL GRASS FIELD",RGB(31,29,20));menu_text(pixels,130,178,"CLEAR FLOODED",RGB(25,23,18));}
+    else if(selected==8&&!(c->completed&64)){menu_text(pixels,6,178,"FLOODED CASTLE",RGB(31,29,20));menu_text(pixels,130,178,"CLEAR MILL RUN",RGB(25,23,18));}
     else if(selected==7&&!(c->completed&32)){menu_text(pixels,6,178,"MILL RUN",RGB(31,29,20));menu_text(pixels,105,178,"CLEAR THIEVES FIRST",RGB(25,23,18));}
     else if(selected==6&&!(c->completed&16)){menu_text(pixels,6,178,"THIEVES",RGB(31,29,20));menu_text(pixels,105,178,"CLEAR FOREST FIRST",RGB(25,23,18));}
     else if(selected==5&&!(c->completed&4)){menu_text(pixels,6,178,"FOREST",RGB(31,29,20));menu_text(pixels,105,178,"CLEAR BOSS FIRST",RGB(25,23,18));}

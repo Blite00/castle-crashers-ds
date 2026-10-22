@@ -150,7 +150,7 @@ S('py', 'tools/convert_thief.py')
 # ---- Weapons: held poses, dash attacks, default combos, icons ------------------
 S('py', 'tools/prepare_held_weapons.py')
 for c in ('blue', 'orange', 'red', 'green'):
-    for w in (2, 9, 19, 10, 38, 30, 37, 42):
+    for w in (2, 9, 19, 10, 38, 30, 37, 42, 54, 55, 62):
         scene(f'held-{c}-{w}')
 S('py', 'tools/convert_held_weapons.py')
 S('py', 'tools/prepare_dash_attacks.py')
@@ -265,10 +265,24 @@ S('py', 'tools/flood_extra.py')
 S('py', 'tools/flood_actors.py')
 S('py', 'tools/flood_geometry.py')
 
+# ---- Tall Grass Field / bear camp (LEVEL20; reads the flood bat art) ------------
+S('py', 'tools/prepare_campaign_war.py', 'camp')
+scene('campaign-camp', '-zoom', '0.5')
+scene('campaign-camp-fg', '-zoom', '0.5')
+S('py', 'tools/convert_campaign_war.py', '--camp')
+S('py', 'tools/camp_geometry.py')
+S('py', 'tools/convert_bear.py', '--prepare')
+scene('bear')
+S('py', 'tools/convert_bear.py')
+S('py', 'tools/export_camp_extra.py')
+S('py', 'tools/camp_actors.py', 'prepare')
+S('py', 'tools/camp_actors.py')
+
 # ---- Pets, digging, buried knights --------------------------------------------
 S('py', 'tools/export_pet_dig.py')
 S('py', 'tools/export_pets_extra.py')
 S('py', 'tools/convert_pet_dig.py')
+S('py', 'tools/pet_extra.py')
 S('py', 'tools/export_buried.py')
 S('py', 'tools/convert_buried.py')
 
@@ -305,6 +319,8 @@ S('py', 'tools/convert_menu_sfx.py')
 S('py', 'tools/convert_break_sfx.py')
 S('py', 'tools/convert_deer_sfx.py')
 S('py', 'tools/convert_thieves_sfx.py')
+S('py', 'tools/convert_boss_sfx.py')
+S('py', 'tools/convert_flood_sfx.py')
 S('py', 'tools/convert_chapter_audio.py')
 S('py', 'tools/convert_audio_envelopes.py')
 

@@ -12,5 +12,10 @@ unsigned campaign_deer_shake(const Campaign *c){(void)c;return 0;}
 int campaign_deer_camera_x(const Campaign *c){(void)c;return DEER_GUIDE_START;}
 void campaign_tally_values(const Campaign *c,unsigned hero,unsigned out[3]){(void)c;(void)hero;out[0]=7;out[1]=120;out[2]=45;}
 #include "campaign_flood.h"
+#include "campaign_camp.h"
+int campaign_camp_event_x(unsigned event){return event==CAMP_EV_STORY?5750:0;}
 unsigned campaign_flood_rocks(unsigned timer,FloodObject out[FLOOD_ROCK_LIMIT]){(void)timer;(void)out;return 0;}
 unsigned campaign_flood_fins(unsigned timer,FloodObject out[FLOOD_FIN_LIMIT]){(void)timer;(void)out;return 0;}
+int campaign_flood_boat_x(const Arena *a){(void)a;return 220;}
+#include "campaign_boss.h"
+unsigned campaign_boss_intro_shake(const struct Campaign *c){(void)c;return 0;}

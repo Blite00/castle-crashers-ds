@@ -2,11 +2,12 @@
 #define STAGE_H
 #include "arena.h"
 #define STAGE_ARENA_COUNT 3
-#define STAGE_MAP_COUNT 16
+#define STAGE_MAP_COUNT 17
 #define FOREST_MAP 12
 #define THIEVES_MAP 13
 #define DEER_MAP 14
 #define FLOOD_MAP 15
+#define CAMP_MAP 16
 #define CAMPAIGN_WORLD_WIDTH 2448
 #define CAMPAIGN_WORLD_HEIGHT 448
 #define CAMPAIGN_SHOP_WIDTH 1024

@@ -11,7 +11,7 @@ for t in original.find('tags'):
  if b'f_Weapon\0' in actions:selectors[t.get('spriteId')]=t
 print('Weapon selector sprites',list(selectors))
 for color in ('blue','orange','red','green'):
- for weapon in (2,9,19,10,38,30,37,42):
+ for weapon in (2,9,19,10,38,30,37,42,54,55,62):
   r=E.parse(R/f'assets/extracted/{color}.xml').getroot();tags=r.find('tags')
   for i,t in enumerate(list(tags)):
    if t.get('spriteId') in selectors:

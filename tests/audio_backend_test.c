@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "campaign_camp.h"
 #include <nds.h>
 #include "cinematic_audio.h"
 #include "chapter_audio.h"
@@ -7,6 +8,8 @@
 #include <assert.h>
 #include <stdio.h>
 unsigned campaign_deer_cue(unsigned after,unsigned now){(void)after;(void)now;return 0;} /* The Mill Run cue table lives in campaign_deer.c, which this backend test does not link. */
+unsigned campaign_boss_intro_cue(unsigned after,unsigned now){(void)after;(void)now;return 0;}
+unsigned campaign_camp_boss_music(const struct Campaign *c){(void)c;return 0;}
 #include <string.h>
 static unsigned char scenery[177000],enemy[27048],music[450000];
 uint8_t chapter_asset_buffer[CHAPTER_ASSET_CAPACITY]; /* The thieves cutscene sounds live in a chapter bank. */
@@ -84,8 +87,8 @@ int main(void){
  plays=channels[8].plays;for(unsigned i=0;i<90;i++)audio_set_mode(AUDIO_WORLDMAP);
  assert(channels[8].plays==plays&&music_loads==4);
  audio_set_mode(AUDIO_SILENT);bank=CHAPTER_BOSS;a.map_id=11;audio_set_mode(AUDIO_BARBARIAN_BOSS);assert(music_loads==5);
- step(&c,&a,BOSS_INTRO,126);assert(channels[8].data!=music);
- step(&c,&a,BOSS_INTRO,129);assert(channels[8].data==music+chapter_audio_clips[CHAPTER_AUDIO_BARBARIAN_BOSS].offset);
+ step(&c,&a,BOSS_INTRO,159);assert(channels[8].data!=music);
+ step(&c,&a,BOSS_INTRO,161);assert(channels[8].data==music+chapter_audio_clips[CHAPTER_AUDIO_BARBARIAN_BOSS].offset);
  plays=channels[8].plays;step(&c,&a,BOSS_FIGHT,0);assert(channels[8].plays==plays);
  step(&c,&a,BOSS_TREASURE,9);assert(channels[8].plays==plays);
  step(&c,&a,BOSS_TREASURE,12);assert(channels[8].data==music+chapter_audio_clips[CHAPTER_AUDIO_GOLDGRAB].offset&&music_loads==5);

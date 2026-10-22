@@ -8,6 +8,7 @@
 #include "arena.h"
 #include "render.h"
 #include "stage.h"
+#include "campaign_camp.h"
 #include "campaign.h"
 int main(int argc,char **argv){
     if(argc<2||argc>3)return 2;
@@ -225,10 +226,24 @@ if(scenario>=37&&scenario<=39){
         campaign.war.machine=(Fighter){.ready=campaign.timer>=179,.hp=350,.x=campaign.timer<279?808-(int)(campaign.timer>179?campaign.timer-179:0)*2:608,.y=315,.facing=-1,.pose=POSE_WALK,.attack_kind=BOSS_WALK,.animation=step};
         arena_render_campaign(&campaign);
     }
+    if(scenario==88){ /* Tall Grass Field end cinematic: the party walks to p*_5 while the Necromancer's minions carry the princesses off */
+        stage_set_map(CAMP_MAP);a.map_id=CAMP_MAP;a.round=CAMP_MAP;a.running=1;a.tick=step*2;campaign.phase=WAR_FIGHT;campaign.group=CAMP_EV_STORY;campaign.timer=step*2;
+        int walk=5750-step*5;if(walk<CAMP_P1_5_X)walk=CAMP_P1_5_X;
+        a.p[0]=(Fighter){.ready=1,.hp=100,.mana=40,.x=walk,.y=CAMP_P1_5_Y,.facing=-1,.pose=walk>CAMP_P1_5_X?POSE_WALK:POSE_IDLE,.animation=step};a.p[1].ready=0;
+        memset(campaign.enemies,0,sizeof campaign.enemies);arena_render_campaign(&campaign);
+    }
+    if(scenario==89){ /* the three animal orbs on the plain, and as followers with the happy pose */
+        stage_set_map(CAMP_MAP);a.map_id=CAMP_MAP;a.round=CAMP_MAP;a.running=1;a.tick=step;campaign.phase=WAR_TRAVEL;campaign.group=CAMP_EV_ROW;
+        a.p[0]=(Fighter){.ready=1,.hp=100,.mana=40,.x=getenv("PX")?atoi(getenv("PX")):1600,.y=getenv("PY")?atoi(getenv("PY")):290,.facing=1};a.p[1].ready=0;
+        static const uint8_t ids[3]={3,6,16};
+        for(int i=0;i<3;i++)campaign.drops[i]=(CampaignDrop){1560+i*40,288,DROP_PET,ids[i]};
+        campaign.pets[0].equipped=ids[(step/40)%3];campaign.pet_followers[0]=(PetFollower){.x=1575,.y=292,.facing=1,.love_timer=(step%40)<20?30:0};
+        memset(campaign.enemies,0,sizeof campaign.enemies);arena_render_campaign(&campaign);
+    }
     if(scenario==32||scenario==33)a.map_id=3;
 #ifdef CHAPTER_ASSETS_TEST
     if(scenario>=17&&scenario<=23)a.map_id=scenario<20?scenario-17:0;
-    assert(chapter_assets_load(a.map_id==BOSS_MAP?CHAPTER_BOSS:a.map_id>=8?CHAPTER_HUBS:a.map_id==6||a.map_id==7?CHAPTER_WAR:a.map_id>=3?CHAPTER_KEEP:CHAPTER_ARENAS));
+    assert(chapter_assets_load(a.map_id==CAMP_MAP?CHAPTER_CAMP:a.map_id==BOSS_MAP?CHAPTER_BOSS:a.map_id>=8?CHAPTER_HUBS:a.map_id==6||a.map_id==7?CHAPTER_WAR:a.map_id>=3?CHAPTER_KEEP:CHAPTER_ARENAS));
 #endif
 #ifdef RENDER_TEST_OVERLAY
     /* Match main.c: register/switch terrain before rendering into the overlay. */

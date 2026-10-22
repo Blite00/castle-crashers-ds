@@ -1,6 +1,7 @@
 #pragma GCC optimize("Os") /* Not a per-pixel path; the DS EWRAM budget favors size. */
 #include "campaign_deer.h"
 #include "campaign_flood.h"
+#include "campaign_camp.h"
 #include "bottom_ui.h"
 #include "campaign_forest.h"
 #include "campaign_thieves.h"
@@ -39,7 +40,7 @@ void bottom_ui_game(uint16_t *p,const BottomUi *u){
  char title[64],detail[80]="",hint[80]="",footer[64];
  snprintf(title,sizeof title,"%s",stage_name(a->map_id));
  int map=c&&c->phase==CAMPAIGN_WORLD_MAP;
- int mother=c&&a->map_id==THIEVES_MAP?campaign_thieves_boss_hp(c):0;
+ int mother=c&&a->map_id==THIEVES_MAP?campaign_thieves_boss_hp(c):c&&a->map_id==FLOOD_MAP?campaign_flood_boss_hp(c):0;
  int boss=c&&((a->map_id==BOSS_MAP&&c->phase==BOSS_FIGHT)||c->phase==WAR_MACHINE_FIGHT||mother>0);
  if(c){
   if(map){
@@ -50,7 +51,7 @@ void bottom_ui_game(uint16_t *p,const BottomUi *u){
    snprintf(detail,sizeof detail,"%s",locked?"Complete the previous level":u->client?"Host chooses the destination":"D-pad or tap arrows to travel");
    snprintf(hint,sizeof hint,"%s",campaign_world_travelling(c)?"Walking to destination...":u->peer_loading?"Guest is loading...":u->client?"Your party travels together":locked?"Destination locked":"A or tap here to enter");
   }else{
-   const char *objective=a->map_id==FLOOD_MAP?campaign_flood_objective(c):a->map_id==DEER_MAP?campaign_deer_objective(c):a->map_id==THIEVES_MAP?campaign_thieves_objective(c):a->map_id==FOREST_MAP?campaign_forest_objective(c):a->map_id==BOSS_MAP?campaign_boss_objective(c):a->map_id>=8?campaign_hubs_objective(a->map_id):a->map_id>=6?campaign_war_objective(c,a):campaign_objective(c);
+   const char *objective=a->map_id==CAMP_MAP?campaign_camp_objective(c):a->map_id==FLOOD_MAP?campaign_flood_objective(c):a->map_id==DEER_MAP?campaign_deer_objective(c):a->map_id==THIEVES_MAP?campaign_thieves_objective(c):a->map_id==FOREST_MAP?campaign_forest_objective(c):a->map_id==BOSS_MAP?campaign_boss_objective(c):a->map_id>=8?campaign_hubs_objective(a->map_id):a->map_id>=6?campaign_war_objective(c,a):campaign_objective(c);
    snprintf(detail,sizeof detail,"%s",c->phase==KEEP_STORE?"Approach a shop board to buy":objective);
    if(c->phase==KEEP_INTRO||c->phase==KEEP_ABDUCTION||c->phase==KEEP_BARRACKS_INTRO)snprintf(hint,sizeof hint,"A: skip cinematic");
    else if(c->revive[0]||c->revive[1])snprintf(hint,sizeof hint,"Reviving - keep holding R");
@@ -77,7 +78,7 @@ void bottom_ui_game(uint16_t *p,const BottomUi *u){
   snprintf(detail,sizeof detail,"%s",u->host?(a->p[1].ready?"Guest ready":u->guest_known?"Guest choosing a knight":"Waiting for a guest"):"Waiting for host to start");
   snprintf(hint,sizeof hint,"%s",u->host?(arena_players_ready(a)?"START: begin":"Both knights must be ready"):"Your knight is ready");
  }
- if(boss){unsigned maximum=mother?THIEVES_MOTHER_HEALTH:a->map_id==BOSS_MAP?c->war.gate_hp:c->war.gate_hp>151?450:350;snprintf(detail,sizeof detail,"BOSS  %u / %u",mother?(unsigned)mother:(unsigned)c->war.machine.hp,maximum);}
+ if(boss){unsigned maximum=mother?(a->map_id==FLOOD_MAP?(a->p[1].ready?900u:600u):THIEVES_MOTHER_HEALTH):a->map_id==BOSS_MAP?c->war.gate_hp:c->war.gate_hp>151?450:350;snprintf(detail,sizeof detail,"BOSS  %u / %u",mother?(unsigned)mother:(unsigned)c->war.machine.hp,maximum);}
  if(a->clash_timer){
   int group=c&&c->phase!=BOSS_DUEL;
   snprintf(detail,sizeof detail,"%s",group&&a->p[h].pose!=POSE_CLASH?"ALLY WEAPON CLASH":"WEAPON CLASH - MASH A/X/B!");
@@ -100,7 +101,7 @@ void bottom_ui_game(uint16_t *p,const BottomUi *u){
  if(!meter)ui_skin_text(p,16,82,224,detail,UI_INK);
  if(!boss)ui_skin_text(p,16,98,224,hint,UI_INK);
  if(map&&!u->client){menu_text(p,17,68,"<",UI_INK);menu_text(p,230,68,">",UI_INK);}
- if(meter){unsigned maximum=mother?THIEVES_MOTHER_HEALTH:a->map_id==BOSS_MAP?c->war.gate_hp:c->war.gate_hp>151?450:350;hud_render_boss(p,mother?(unsigned)mother:(unsigned)c->war.machine.hp,maximum);}
+ if(meter){unsigned maximum=mother?(a->map_id==FLOOD_MAP?(a->p[1].ready?900u:600u):THIEVES_MOTHER_HEALTH):a->map_id==BOSS_MAP?c->war.gate_hp:c->war.gate_hp>151?450:350;hud_render_boss(p,mother?(unsigned)mother:(unsigned)c->war.machine.hp,maximum);}
  if(a->running&&!a->winner){
   if(c){campaign_stats_button(p,campaign_points(c,h));item_selector_draw(p,campaign_item_mask(c,h),u->item_cursor,campaign_equipped_item(c,h),c->potions[h]);}
   else hud_render_item(p,&a->p[h]);

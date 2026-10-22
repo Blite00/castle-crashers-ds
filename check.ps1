@@ -5,7 +5,7 @@ try {
     New-Item -ItemType Directory -Force build | Out-Null
     $cc = Join-Path $PSScriptRoot '../.tools/msys64/ucrt64/bin/gcc.exe'
     $env:PATH = (Split-Path $cc) + ';' + $env:PATH
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/bottom_ui_test.c source/campaign_save.c source/bottom_ui.c source/item_selector.c generated/selector_art.c source/ui_skin.c source/campaign_menu.c source/hud.c source/weapon_art.c source/menu.c generated/item_art.c generated/loot_art.c generated/hud_art.c generated/menu_art.c source/campaign.c source/campaign_boss.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/bottom-ui-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/bottom_ui_test.c source/campaign_save.c source/bottom_ui.c source/item_selector.c generated/selector_art.c source/ui_skin.c source/campaign_menu.c source/hud.c source/weapon_art.c source/menu.c generated/item_art.c generated/loot_art.c generated/hud_art.c generated/menu_art.c source/campaign.c source/campaign_boss.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/bottom-ui-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Bottom UI compilation failed' }
     & ./build/bottom-ui-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Bottom UI checks failed' }
@@ -19,7 +19,7 @@ try {
         & "./build/$assetTest-test.exe"
         if ($LASTEXITCODE -ne 0) { throw "$assetTest checks failed" }
     }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_boss_test.c source/campaign.c source/campaign_boss.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_boss-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_boss_test.c source/campaign.c source/campaign_boss.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_boss-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Boss compilation failed' }
     & ./build/campaign_boss-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Boss checks failed' }
@@ -123,15 +123,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Door compilation failed' }
     & ./build/barracks-door-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Door animation tests failed' }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/pet_save_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/pet-save-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/pet_save_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/pet-save-test.exe
     if ($LASTEXITCODE -ne 0) { throw "Pet save compilation failed" }
     & ./build/pet-save-test.exe
     if ($LASTEXITCODE -ne 0) { throw "Pet save checks failed" }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_pets_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_pets-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_pets_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_pets-test.exe
     if ($LASTEXITCODE -ne 0) { throw "campaign_pets compilation failed" }
     & ./build/campaign_pets-test.exe
     if ($LASTEXITCODE -ne 0) { throw "campaign_pets checks failed" }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/war_physics_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/war_physics-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/war_physics_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/war_physics-test.exe
     if ($LASTEXITCODE -ne 0) { throw "war_physics compilation failed" }
     & ./build/war_physics-test.exe
     if ($LASTEXITCODE -ne 0) { throw "war_physics checks failed" }
@@ -149,35 +149,35 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "campaign_hubs compilation failed" }
     & ./build/campaign_hubs-test.exe
     if ($LASTEXITCODE -ne 0) { throw "campaign_hubs checks failed" }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_world_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_world-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_world_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_world-test.exe
     if ($LASTEXITCODE -ne 0) { throw "campaign_world compilation failed" }
     & ./build/campaign_world-test.exe
     if ($LASTEXITCODE -ne 0) { throw "campaign_world checks failed" }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_forest_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_forest-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_forest_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_forest-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Forest Entrance compilation failed' }
     & ./build/campaign_forest-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Forest Entrance checks failed' }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_thieves_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/weapon_art.c source/stage.c -o build/campaign_thieves-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_thieves_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/weapon_art.c source/stage.c -o build/campaign_thieves-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Thieves Forest compilation failed' }
     & ./build/campaign_thieves-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Thieves Forest checks failed' }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/wire_ext_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/wire-ext-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/wire_ext_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/wire-ext-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Wire state compilation failed' }
     & ./build/wire-ext-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Wire state checks failed' }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_bow_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_bow-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_bow_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_bow-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Bow compilation failed' }
     & ./build/campaign_bow-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Bow checks failed' }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_loading_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-loading-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_loading_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-loading-test.exe
     if ($LASTEXITCODE -ne 0) { throw "Loading handshake compilation failed" }
     & ./build/campaign-loading-test.exe
     if ($LASTEXITCODE -ne 0) { throw "Loading handshake checks failed" }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_progress_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-progress-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_progress_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-progress-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Progress/save tests compilation failed' }
     & ./build/campaign-progress-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Progress/save tests failed' }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_feedback_test.c source/campaign_feedback.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-feedback-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_feedback_test.c source/campaign_feedback.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-feedback-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Campaign feedback compilation failed' }
     & ./build/campaign-feedback-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Campaign feedback checks failed' }
@@ -199,7 +199,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'ARM7 startup test compilation failed' }
     & ./build/arm7-startup-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'ARM7 startup tests failed' }
-    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_test.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-test.exe
+    & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_test.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_thieves.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Campaign test compilation failed' }
     & ./build/campaign-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Campaign tests failed' }
@@ -245,14 +245,18 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Shop asset tests failed' }
     & $cc -std=c11 -Wall -Wextra -Werror -Isource tests/camera_test.c source/camera.c source/arena.c source/stage.c -o build/camera-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Camera test compilation failed' }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_deer_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_deer.c source/campaign_flood.c source/campaign_thieves.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_deer-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_deer_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_thieves.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_deer-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Deer level test compilation failed' }
     & ./build/campaign_deer-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Deer level tests failed' }
-    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_flood_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_deer.c source/campaign_flood.c source/campaign_thieves.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_flood-test.exe
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_flood_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_thieves.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_flood-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Flood level test compilation failed' }
     & ./build/campaign_flood-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Flood level tests failed' }
+    & $cc -std=c11 -O2 -Wall -Wextra -Werror -Isource -Igenerated tests/campaign_camp_test.c source/campaign_save.c source/campaign_link.c source/campaign.c source/campaign_war.c source/campaign_forest.c source/campaign_deer.c source/campaign_flood.c source/campaign_camp.c source/campaign_thieves.c source/campaign_boss.c source/campaign_hubs.c source/pets.c source/campaign_combat.c source/campaign_weapons.c source/cinematic.c source/bot.c source/protocol.c source/arena.c source/stage.c -o build/campaign_camp-test.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Camp level test compilation failed' }
+    & ./build/campaign_camp-test.exe
+    if ($LASTEXITCODE -ne 0) { throw 'Camp level tests failed' }
     & ./build/camera-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Camera tests failed' }
     & $cc -std=c11 -Wall -Wextra -Werror -Isource -Igenerated tests/level_contract_test.c source/arena.c source/stage.c -o build/level-contract-test.exe
@@ -314,7 +318,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Foreground culling pixel identity failed' }
     python tools/test_asset_codec.py
     if ($LASTEXITCODE -ne 0) { throw 'Asset codec tests failed' }
-    foreach ($scenario in 0..87) {
+    foreach ($scenario in 0..89) {
         & ./build/render-preview.exe "build/reference-$scenario.ppm" $scenario
         if ($LASTEXITCODE -ne 0) { throw 'Reference render failed' }
         & ./build/render-overlay-test.exe "build/overlay-$scenario.ppm" $scenario
@@ -323,7 +327,7 @@ try {
     python -c "from pathlib import Path; r=Path('build'); assert all((r/f'reference-{i}.ppm').read_bytes()==(r/f'overlay-{i}.ppm').read_bytes() for i in range(88)); print('PASS: software reference and hardware-overlay composition match across all88 scenarios')"
     & $cc -std=c11 -Wall -Wextra -Werror -DRENDER_TEST_OVERLAY -DCHAPTER_ASSETS_TEST -Isource -Igenerated tools/render_preview.c source/chapter_assets.c source/arena.c source/stage.c source/render.c source/weapon_art.c generated/selector_art.c source/cinematic.c source/camera.c source/effects.c source/raster.c source/hud.c source/ui_skin.c source/menu.c generated/item_art.c generated/loot_art.c generated/hud_art.c generated/menu_art.c tests/thieves_stubs.c -o build/render-banked-test.exe
     if ($LASTEXITCODE -ne 0) { throw 'Banked renderer compilation failed' }
-    foreach ($scenario in 0..87) {
+    foreach ($scenario in 0..89) {
         & ./build/render-banked-test.exe build/banked.ppm $scenario
         if ($LASTEXITCODE -ne 0) { throw 'Banked renderer failed' }
         python -c "from pathlib import Path; assert Path('build/banked.ppm').read_bytes()==Path('build/reference-$scenario.ppm').read_bytes()"

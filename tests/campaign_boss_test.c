@@ -70,7 +70,18 @@ static void scheduler_check(void){
   assert(alive==(unsigned)(stage+1));
  }
 }
+/* Gate scene of sprite 202: shake and sound cues land on the clip frames (tick = frame + 33). */
+static void intro_cues(void){
+    Campaign c={0};c.phase=BOSS_INTRO;
+    c.timer=46;assert(!campaign_boss_intro_shake(&c));c.timer=47;assert(campaign_boss_intro_shake(&c)==3);c.timer=56;assert(!campaign_boss_intro_shake(&c));
+    c.timer=152;assert(campaign_boss_intro_shake(&c)==7);c.timer=175;assert(campaign_boss_intro_shake(&c)==7);c.timer=176;assert(!campaign_boss_intro_shake(&c));
+    c.phase=BOSS_FIGHT;c.timer=152;assert(!campaign_boss_intro_shake(&c));
+    assert(campaign_boss_intro_cue(0,46)==0&&campaign_boss_intro_cue(0,47)==((47u<<8)|1));
+    unsigned seen=0,after=0,cue;while((cue=campaign_boss_intro_cue(after,300))!=0){seen++;after=cue>>8;}
+    assert(seen==6&&campaign_boss_intro_cue(150,300)==((152u<<8)|4)&&campaign_boss_intro_cue(84,300)==((105u<<8)|3));
+}
 int main(void){
+    intro_cues();
  scheduler_check();
  locomotion_check();
  burial_check();

@@ -22,7 +22,7 @@ def pack(d):
   while skip>=128:stream.append((skip&127)|128);skip>>=7
   stream.extend((skip,end-start));stream.extend(d[k] for k in range(start,end));cursor=end
  return bytes(stream)
-streams=[b''];lookup={b'':0};NS=7;common=[[] for _ in range(NS)];fixes=[[[] for _ in range(NS)] for _ in range(4)];bounds=[[] for _ in range(NS)];total=0
+streams=[b''];lookup={b'':0};NS=10;common=[[] for _ in range(NS)];fixes=[[[] for _ in range(NS)] for _ in range(4)];bounds=[[] for _ in range(NS)];total=0
 
 def add(s):
  if s not in lookup:lookup[s]=len(streams);streams.append(s)

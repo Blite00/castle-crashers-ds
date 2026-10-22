@@ -1,9 +1,9 @@
 #pragma GCC optimize("Os") /* Not a per-pixel path; the DS EWRAM budget favors size. */
 #include "campaign_link.h"
 int campaign_request_valid(const CampaignRequest *p){
-    if(!p||p->magic!=CAMPAIGN_REQUEST_MAGIC||p->version!=CAMPAIGN_VERSION||p->operation<1||p->operation>5||p->slot>(p->operation==CAMPAIGN_REQUEST_LOADED?8:3)||(p->operation!=CAMPAIGN_REQUEST_LOADED&&(p->reserved0[0]||p->reserved0[1])))return 0;
-    if(p->operation==CAMPAIGN_REQUEST_LOADED&&(p->reserved0[0]<3||p->reserved0[0]>15||(p->reserved0[1]!=0&&p->reserved0[1]!=CAMPAIGN_WORLD_MAP)))return 0;
-    if(p->operation==CAMPAIGN_REQUEST_LOADED){unsigned bank=p->reserved0[1]==CAMPAIGN_WORLD_MAP?3:p->reserved0[0]==15?8:p->reserved0[0]==14?7:p->reserved0[0]==13?6:p->reserved0[0]==12?5:p->reserved0[0]==11?4:p->reserved0[0]>=8?3:p->reserved0[0]>=6?2:1;if(p->slot!=bank)return 0;}
+    if(!p||p->magic!=CAMPAIGN_REQUEST_MAGIC||p->version!=CAMPAIGN_VERSION||p->operation<1||p->operation>5||p->slot>(p->operation==CAMPAIGN_REQUEST_LOADED?9:3)||(p->operation!=CAMPAIGN_REQUEST_LOADED&&(p->reserved0[0]||p->reserved0[1])))return 0;
+    if(p->operation==CAMPAIGN_REQUEST_LOADED&&(p->reserved0[0]<3||p->reserved0[0]>16||(p->reserved0[1]!=0&&p->reserved0[1]!=CAMPAIGN_WORLD_MAP)))return 0;
+    if(p->operation==CAMPAIGN_REQUEST_LOADED){unsigned bank=p->reserved0[1]==CAMPAIGN_WORLD_MAP?3:p->reserved0[0]==16?9:p->reserved0[0]==15?8:p->reserved0[0]==14?7:p->reserved0[0]==13?6:p->reserved0[0]==12?5:p->reserved0[0]==11?4:p->reserved0[0]>=8?3:p->reserved0[0]>=6?2:1;if(p->slot!=bank)return 0;}
     if(p->operation!=CAMPAIGN_REQUEST_PROFILE)return 1;
     return campaign_character_valid(&p->character);
 }

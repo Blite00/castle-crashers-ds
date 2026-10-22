@@ -21,6 +21,10 @@
 #include "campaign_thieves.h"
 #include "campaign_deer.h"
 #include "deer_sfx.h"
+#include "flood_sfx.h"
+#include "boss_sfx.h"
+#include "campaign_camp.h"
+#include "campaign_boss.h"
 #endif
 
 /* Full hardware range; the output controller reserves mix headroom only when
@@ -120,6 +124,8 @@ static const ChapterMusicFile *chapter_music_file(unsigned bank,unsigned track){
   {CHAPTER_DEER,CHAPTER_AUDIO_DEER_VICTORY,CHAPTER_AUDIO_DEER_VICTORY_BYTES,AUDIO_BANK_PREFIX "chapter-deer-victory.bin"},
   {ANY,CHAPTER_AUDIO_BOSS_VICTORY,CHAPTER_AUDIO_BOSS_VICTORY_BYTES,AUDIO_BANK_PREFIX "chapter-boss-victory.bin"},
   {CHAPTER_DEER,ANY,CHAPTER_AUDIO_DEER_BYTES,AUDIO_BANK_PREFIX "chapter-deer.bin"},
+  {CHAPTER_CAMP,CHAPTER_AUDIO_CAMP_BOSS,CHAPTER_AUDIO_CAMP_BOSS_BYTES,AUDIO_BANK_PREFIX "chapter-camp-boss.bin"},
+  {CHAPTER_CAMP,CHAPTER_AUDIO_CAMP,CHAPTER_AUDIO_CAMP_BYTES,AUDIO_BANK_PREFIX "chapter-camp.bin"},
   {CHAPTER_FLOOD,CHAPTER_AUDIO_FLOOD_BOSS,CHAPTER_AUDIO_FLOOD_BOSS_BYTES,AUDIO_BANK_PREFIX "chapter-flood-boss.bin"},
   {CHAPTER_FLOOD,CHAPTER_AUDIO_FLOOD,CHAPTER_AUDIO_FLOOD_BYTES,AUDIO_BANK_PREFIX "chapter-flood.bin"},
   {CHAPTER_THIEVES,CHAPTER_AUDIO_THIEVES_BOSS,CHAPTER_AUDIO_THIEVES_BOSS_BYTES,AUDIO_BANK_PREFIX "chapter-thieves-boss.bin"},
@@ -174,6 +180,10 @@ static void start_music(void) {
         return;
     }
     if(audio.mode==AUDIO_DEER)return; /* The Mill Run's music starts with frame 285 of its entrance clip (audio_update_campaign). */
+    if(audio.mode==AUDIO_CAMP){
+        if(load_chapter_music(CHAPTER_CAMP,CHAPTER_AUDIO_CAMP))chapter_music_play(CHAPTER_AUDIO_CAMP);
+        return;
+    }
     if(audio.mode==AUDIO_FLOOD){
         if(load_chapter_music(CHAPTER_FLOOD,CHAPTER_AUDIO_FLOOD))chapter_music_play(CHAPTER_AUDIO_FLOOD);
         return;
@@ -449,12 +459,19 @@ void audio_update_campaign(const Campaign *c,const Arena *a){
         audio.boss_track=1;
         if(load_chapter_music(CHAPTER_DEER,CHAPTER_AUDIO_DEER))chapter_music_play(CHAPTER_AUDIO_DEER);
     }
-    if(c->phase==WAR_COMPLETE&&a->map_id>=FOREST_MAP&&a->map_id<=FLOOD_MAP&&(audio.mode==AUDIO_FLOOD||audio.mode==AUDIO_FOREST||audio.mode==AUDIO_THIEVES||audio.mode==AUDIO_DEER)){
+    if(c->phase==WAR_COMPLETE&&a->map_id>=FOREST_MAP&&a->map_id<=CAMP_MAP&&(audio.mode==AUDIO_CAMP||audio.mode==AUDIO_FLOOD||audio.mode==AUDIO_FOREST||audio.mode==AUDIO_THIEVES||audio.mode==AUDIO_DEER)){
         /* MAIN f_ScoreTally: StopMusic, then PlayMusic(4) Waterflame_RaceVictory while the score signs count up. */
         if(audio.boss_track!=2){
             audio.boss_track=2;
-            unsigned bank=a->map_id==FLOOD_MAP?CHAPTER_FLOOD:a->map_id==DEER_MAP?CHAPTER_DEER:a->map_id==THIEVES_MAP?CHAPTER_THIEVES:CHAPTER_FOREST,track=a->map_id==DEER_MAP?CHAPTER_AUDIO_DEER_VICTORY:CHAPTER_AUDIO_BOSS_VICTORY;
+            unsigned bank=a->map_id==CAMP_MAP?CHAPTER_CAMP:a->map_id==FLOOD_MAP?CHAPTER_FLOOD:a->map_id==DEER_MAP?CHAPTER_DEER:a->map_id==THIEVES_MAP?CHAPTER_THIEVES:CHAPTER_FOREST,track=a->map_id==DEER_MAP?CHAPTER_AUDIO_DEER_VICTORY:CHAPTER_AUDIO_BOSS_VICTORY;
             if(load_chapter_music(bank,track))chapter_music_play(track);
+        }
+    }else if(audio.mode==AUDIO_CAMP){
+        unsigned wanted=campaign_camp_boss_music(c);
+        if(wanted!=audio.boss_track){
+            audio.boss_track=wanted;
+            unsigned track=wanted?CHAPTER_AUDIO_CAMP_BOSS:CHAPTER_AUDIO_CAMP;
+            if(load_chapter_music(CHAPTER_CAMP,track))chapter_music_play(track);
         }
     }else if(audio.mode==AUDIO_FLOOD){
         unsigned wanted=c->group==1;
@@ -473,7 +490,7 @@ void audio_update_campaign(const Campaign *c,const Arena *a){
     }
     if(audio.mode==AUDIO_BARBARIAN_BOSS){
         unsigned wanted=(c->phase==BOSS_COMPLETE||(c->phase==BOSS_KISS&&c->timer>=65))?4:c->phase==BOSS_DUEL?3:c->phase==BOSS_KISS?(a->p[1].ready?3u:2u):(c->phase>BOSS_TREASURE||(c->phase==BOSS_TREASURE&&c->timer>=10))?2:
-                        (c->phase>BOSS_INTRO||(c->phase==BOSS_INTRO&&c->timer>=127))?1:0;
+                        (c->phase>BOSS_INTRO||(c->phase==BOSS_INTRO&&c->timer>=160))?1:0;
         if(wanted!=audio.boss_track){
             audio.boss_track=wanted;
             unsigned track=wanted==4?CHAPTER_AUDIO_BOSS_VICTORY:wanted==3?CHAPTER_AUDIO_BOSS_DUEL:wanted==2?CHAPTER_AUDIO_GOLDGRAB:CHAPTER_AUDIO_BARBARIAN_BOSS;
@@ -532,6 +549,46 @@ void audio_update_campaign(const Campaign *c,const Arena *a){
             last_timer=c->timer;
         }
         last_deer=a->map_id;
+    }
+#endif
+#ifdef ARM9
+    {   /* Barbarian Boss gate scene: the cues of sprite 202 (ground thumps, the roar, the falling door) when the published timer crosses them. */
+        static unsigned last_timer;static int last_boss=-1;
+        if(a->map_id==BOSS_MAP&&c->phase==BOSS_INTRO&&audio.enabled){
+            if(last_boss!=BOSS_MAP||c->timer<last_timer)last_timer=c->timer?c->timer-1:0;
+            if(c->timer>last_timer&&c->timer-last_timer<60){
+                unsigned cue,after=last_timer;
+                while((cue=campaign_boss_intro_cue(after,c->timer))!=0){
+                    unsigned id=cue&255;after=cue>>8;
+                    const unsigned char *data=boss_sfx_data+boss_sfx_table[id-1][0];unsigned size=boss_sfx_table[id-1][1];
+                    DC_FlushRange(data,size);play_sample(13,data,SoundFormat_ADPCM,size,BOSS_SFX_RATE,EFFECT_VOLUME,64,false,0);
+                }
+            }
+            last_timer=c->timer;
+        }
+        last_boss=a->map_id;
+    }
+#endif
+#ifdef ARM9
+    {   /* Flooded Castle: the angry fish clip (sprite 333 frames 10, 35 and 65), the cannon that stuns the Catfish, its hairball and the bat's bite.
+           Everything is read from the published snapshot, so host and guest hear the same things. */
+        static int last_flood=-1;static unsigned last_clock;static uint8_t last_stun,last_spit;static int16_t last_hp[2];
+        if(a->map_id==FLOOD_MAP&&audio.enabled){
+            if(last_flood!=FLOOD_MAP||c->break_tick<last_clock)last_clock=c->break_tick?c->break_tick-1u:0;
+            static const struct {uint16_t at;uint8_t id;} cues[]={{1581,FLOOD_SFX_TOADBLAH},{1606,FLOOD_SFX_EXPLOSION4},{1636,FLOOD_SFX_SLIMEHIT3}};
+            int id=-1;
+            for(unsigned i=0;i<sizeof cues/sizeof *cues;i++)if(last_clock<cues[i].at&&c->break_tick>=cues[i].at&&c->break_tick-last_clock<60)id=cues[i].id;
+            last_clock=c->break_tick;
+            int stun=0;for(int i=0;i<CAMPAIGN_ENEMIES;i++)if(c->species[i]==2&&c->enemies[i].ready&&c->enemies[i].hp>0&&c->enemies[i].pose==POSE_HURT)stun=1;
+            int spit=c->war.machine.ready&&c->war.machine.attack_kind==0;
+            if(stun&&!last_stun)id=FLOOD_SFX_EXPLOSION3;
+            if(spit&&!last_spit)id=FLOOD_SFX_CATBURP;
+            for(int h=0;h<2;h++){if(a->p[h].ready&&a->p[h].pose==POSE_DIG&&a->p[h].hp<last_hp[h])id=FLOOD_SFX_CHOMP;last_hp[h]=a->p[h].hp;}
+            last_stun=(uint8_t)stun;last_spit=(uint8_t)spit;
+            if(id>=0){const unsigned char *data=flood_sfx_data+flood_sfx_table[id][0];unsigned size=flood_sfx_table[id][1];
+                DC_FlushRange(data,size);play_sample(13,data,SoundFormat_ADPCM,size,FLOOD_SFX_RATE,EFFECT_VOLUME,64,false,0);}
+        }
+        last_flood=a->map_id;
     }
 #endif
 #ifdef ARM9

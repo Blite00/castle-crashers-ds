@@ -65,7 +65,7 @@ static void map_walk_check(void){
  campaign_world_map(&c,&a);assert(c.group==2&&c.spawned==2);
  assert(campaign_world_choose(&c,0));while(campaign_world_travelling(&c)){campaign_world_tick(&c,&a);packet(&c,&a);}
  assert(campaign_world_enter(&c,&a,0));campaign_world_map(&c,&a);assert(c.group==0);
- CampaignPacket bad;Campaign paused_copy={0};Arena paused_arena;c.paused=1;campaign_pack(&bad,&c,&a,1);assert(campaign_packet_valid(&bad)&&bad.running==11);campaign_unpack(&bad,&paused_copy,&paused_arena);assert(paused_copy.paused&&paused_arena.running==1);bad.running=32;assert(!campaign_packet_valid(&bad));c.paused=0;campaign_pack(&bad,&c,&a,1);bad.spawned=9;assert(!campaign_packet_valid(&bad));bad.spawned=0;bad.timer=1;assert(!campaign_packet_valid(&bad));
+ CampaignPacket bad;Campaign paused_copy={0};Arena paused_arena;c.paused=1;campaign_pack(&bad,&c,&a,1);assert(campaign_packet_valid(&bad)&&bad.running==11);campaign_unpack(&bad,&paused_copy,&paused_arena);assert(paused_copy.paused&&paused_arena.running==1);bad.running=32;assert(!campaign_packet_valid(&bad));c.paused=0;campaign_pack(&bad,&c,&a,1);bad.spawned=10;assert(!campaign_packet_valid(&bad));bad.spawned=0;bad.timer=1;assert(!campaign_packet_valid(&bad));
 }
 static void continuous_chapters(void){
  for(unsigned ending=0;ending<2;ending++){

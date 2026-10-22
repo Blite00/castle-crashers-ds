@@ -5,7 +5,7 @@
 A from-scratch Nintendo DS engine (C, BlocksDS) that plays parts of **Castle Crashers** on a Nintendo DS (homebrew flashcart) or in a DS emulator:
 
 - **Arena:** two-player local-wireless duels and a CPU practice opponent on three original arenas, with the original knights, combos, magic, bow, blocking, throws and weapon clashes.
-- **Campaign (two players):** Home Castle, Barracks, Castle Keep with its cinematics, the shop, Barbarian War, the bridge, the Barbarian Boss, the blacksmith/frog/ark hubs, Forest Entrance (with the crocodile mount), Thieves' Forest and the Troll Mother, the Mill Run deer chase and the Flooded Castle with the Catfish. World map, levelling and stats, weapons, pets, potions, shop, score tally and saves.
+- **Campaign (two players):** Home Castle, Barracks, Castle Keep with its cinematics, the shop, Barbarian War, the bridge, the Barbarian Boss, the blacksmith/frog/ark hubs, Forest Entrance (with the crocodile mount), Thieves' Forest and the Troll Mother, the Mill Run deer chase, the Flooded Castle with the Catfish and Tall Grass Field with the bear boss. World map, levelling and stats, weapons, pets, potions, shop, score tally and saves.
 
 **This repository contains no Castle Crashers assets.** No art, animation, music, sound, levels or game data from Castle Crashers is stored here, and neither is the tool that unpacks the game's archives. You need your own copy of Castle Crashers (Steam, PC); a setup script reads it on your computer, converts what the DS needs, and builds the ROM locally.
 
@@ -52,7 +52,7 @@ Other options: `--find` lists the installs it can see, `--no-build` only convert
 
 1. **Finds and checks your copy** and reports whether that release has been tested.
 2. **Fetches two third-party tools** into git-ignored folders: [JPEXS FFDec](https://github.com/jindrapetrik/jpexs-decompiler) 22.0.2 (GPL-3.0) into `.tools/ffdec/`, and Ethan Roseman's MIT-licensed archive extractor [`decrypt_asset.py`](https://github.com/ethteck/castlecrashers) (a pinned version, checked by hash) into `tools/vendor/`.
-3. **Converts assets locally.** About 370 steps (`tools/pipeline.py`) unpack the game's `.pak` archives, render the Flash artwork with FFDec at DS resolution, and convert art, animation, level geometry and audio into DS formats in `assets/`, `generated/` and `nitrofiles/`. All three folders are git-ignored.
+3. **Converts assets locally.** About 415 steps (`tools/pipeline.py`) unpack the game's `.pak` archives, render the Flash artwork with FFDec at DS resolution, and convert art, animation, level geometry and audio into DS formats in `assets/`, `generated/` and `nitrofiles/`. All three folders are git-ignored.
 4. **Builds the ROM.** BlocksDS compiles the engine in `source/` and `arm7/` together with your converted assets into `castle-crashers-ds.nds`.
 
 The engine code, the converters and the tests are original work in this repository. The converted assets and the ROM contain The Behemoth's content, so **keep them for yourself: do not upload, share or distribute `castle-crashers-ds.nds`, `assets/`, `generated/` or `nitrofiles/`.** Point people to this repository instead; they build their own ROM from their own copy. See [NOTICE.md](NOTICE.md).
@@ -115,7 +115,7 @@ CI runs the file rules on every push and pull request.
 
 ## Status
 
-Early build (internal version 0.75). Known gaps are listed per level in `docs/v0xx-qa.md`; for example the Flooded Castle still uses the standard enemy AI instead of the original swim AI, and several original cutscenes and sound effects are missing. Nothing has been run on real DS hardware yet; reports from flashcart users are very welcome.
+Early build (internal version 0.91). New since 0.75: Tall Grass Field (Level 20) with the bear boss, the Rammy, Hawkster and Burly Bear pets and the Lobster, Umbrella and Wrench weapons; the Flooded Castle's original fish, bat and Catfish scripts, riding logs and sound effects; a reworked Barbarian Boss intro with its original sounds (see `docs/CHANGELOG.md`). Known gaps are listed per level in `docs/v0xx-qa.md`; for example several original cutscenes, the parallax skies and some sound effects are missing. Nothing has been run on real DS hardware yet; reports from flashcart users are very welcome.
 
 ## License
 

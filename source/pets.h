@@ -1,8 +1,8 @@
 #ifndef PETS_H
 #define PETS_H
 #include <stdint.h>
-enum { PET_NONE=0,PET_OWLET=2,PET_TROLL=9,PET_DINO=21,PET_SNOOT=17,PET_MR_BUDDY=24,PET_IGNORE_TICKS=51,PET_LOVE_TICKS=60 };
-#define PET_SUPPORTED_MASK ((UINT64_C(1)<<PET_OWLET)|(UINT64_C(1)<<PET_TROLL)|(UINT64_C(1)<<PET_DINO)|(UINT64_C(1)<<PET_SNOOT)|(UINT64_C(1)<<PET_MR_BUDDY))
+enum { PET_NONE=0,PET_OWLET=2,PET_RAMMY=3,PET_BURLY=6,PET_HAWKSTER=16,PET_TROLL=9,PET_DINO=21,PET_SNOOT=17,PET_MR_BUDDY=24,PET_IGNORE_TICKS=51,PET_LOVE_TICKS=60 };
+#define PET_SUPPORTED_MASK ((UINT64_C(1)<<PET_OWLET)|(UINT64_C(1)<<PET_TROLL)|(UINT64_C(1)<<PET_DINO)|(UINT64_C(1)<<PET_SNOOT)|(UINT64_C(1)<<PET_MR_BUDDY)|(UINT64_C(1)<<PET_RAMMY)|(UINT64_C(1)<<PET_BURLY)|(UINT64_C(1)<<PET_HAWKSTER))
 typedef struct {uint64_t owned;uint8_t equipped;} PetProfile; /* owned: one bit per pet id below CONTENT_PET_IDS */
 typedef struct {int16_t x,y;int8_t fraction_x,fraction_y;uint8_t love_timer;int8_t facing;} PetFollower;
 typedef struct {int16_t x,y;uint8_t source_id,ignore_timer,unlock,z;} PetDrop;

@@ -30,7 +30,7 @@ static void progress(unsigned done,unsigned all){assert(done>=last);assert(done<
 int main(void){
  assert(!chapter_assets_ready(0)&&!chapter_assets_ready(1));assert(((uintptr_t)chapter_asset_buffer&31)==0);
  chapter_assets_set_progress(progress);assert(chapter_assets_load(0));assert(chapter_assets_ready(0));assert(!chapter_assets_ready(1));assert(last==total&&calls>1);assert(arena_terrain_packed_data==chapter_asset_buffer+CHAPTER_OFFSET_ARENA_TERRAIN_PACKED_DATA);
- unsigned saved=calls;assert(chapter_assets_load(0));assert(calls==saved);last=0;assert(chapter_assets_load(1));assert(chapter_assets_ready(1)&&!chapter_assets_ready(0));assert(total==chapter_asset_bank_sizes[1]); /* keep bank size depends on the local conversion */assert(static_initializer==chapter_asset_buffer+CHAPTER_OFFSET_CAMPAIGN_WORLD_ROW_DATA);
+ unsigned saved=calls;assert(chapter_assets_load(0));assert(calls==saved);last=0;assert(chapter_assets_load(1));assert(chapter_assets_ready(1)&&!chapter_assets_ready(0));assert(total==985812);assert(static_initializer==chapter_asset_buffer+CHAPTER_OFFSET_CAMPAIGN_WORLD_ROW_DATA);
  uint8_t pixels[32*448];assert(campaign_world_decode_strip(0,pixels));assert(campaign_shop_decode_strip(0,pixels));assert(campaign_barracks_decode_strip(0,pixels));
  chapter_assets_set_progress(NULL);
  assert(chapter_assets_load(CHAPTER_WAR));assert(chapter_assets_ready(CHAPTER_WAR));

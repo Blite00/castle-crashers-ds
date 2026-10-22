@@ -1,3 +1,14 @@
+## v0.91 Tall Grass Field, Flooded Castle scripts, boss sounds
+
+Changes since v0.75 (the first public build); per-version notes are in docs/v076-qa.md to docs/v081-qa.md (v0.81 to v0.91 are all in docs/v081-qa.md). Versions 0.53 to 0.75 are described in their own docs/v0xx-qa.md notes.
+
+- **Tall Grass Field (LEVEL20), world-map node 10.** Unlocks after the Flooded Castle. The whole 6450-unit route with BSP20 collision, two walkable bands at the fortress joined by a climbable ladder, and the original encounters at their waypoints: hut bears, bears from both sides, propeller bears, the dancing bear boss with its reinforcement stream, a bat wave and the exit door. Bears wear the original bear knight costume and cast wind balls and tornadoes; two wooden barricades shoot arrows; the end cinematic (sprite 244) plays on the top deck. Level music and boss music. See docs/level20-source-audit.md.
+- **New pets and weapons.** Rammy, Hawkster and Burly Bear are found in Tall Grass Field, follow their owner in every level (their art is carried in every chapter bank) and strike nearby enemies on a timer. The Lobster, Umbrella and Wrench weapons (registry slots 9 to 11) go through the full held-pose, default-combo and dash-attack pipeline.
+- **Flooded Castle follows the original scripts.** Fat fish, bats and the Catfish have their own AI instead of the shared enemy AI: fish leap and charge, bats carry off swimmers who stand still, the Catfish chases, punches, spits at the king boat and is stunned only by the boat's cannon, then charges below half health. Riding logs, the angry-fish scene, the king boat and the Catfish death clip are in, with their sound effects.
+- **Barbarian Boss intro.** Fixed zoom and a guided camera instead of the flickering two-fighter camera, with the clip's own screen shakes and sounds (ground thumps, roar, the falling door) and the music cue on the right frame. See docs/barbarian-boss-cutscene-and-level-audit.md.
+- **Converters.** New steps in tools/pipeline.py: prepare/convert for the LEVEL20 scene (`prepare_campaign_war.py camp`, `convert_campaign_war.py --camp`), `camp_geometry.py`, `convert_bear.py`, `export_camp_extra.py`, `camp_actors.py`, `pet_extra.py`, `convert_boss_sfx.py` and `convert_flood_sfx.py`; the held-weapon scenes now cover weapons 54, 55 and 62; the extra pets 3, 6 and 16 are exported with the others.
+- Not run on hardware.
+
 ## v0.52 Frame rate, camera, ram, combos, level-up, lobby
 
 See docs/v052-qa.md. ROM: castle-arena-v0.52.nds; ZIP: releases/castle-arena-v0.52.zip.

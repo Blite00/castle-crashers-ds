@@ -6,7 +6,7 @@ import sys,json
 from PIL import Image
 from prepare_frames import freeze
 R=Path(__file__).resolve().parents[1]
-IDS=[1,2,9,19,10,38,30,37,42]
+IDS=[1,2,9,19,10,38,30,37,42,54,55,62]
 if '--prepare' in sys.argv:
  r=E.parse(R/'assets/extracted/player.xml').getroot();defs=[x for x in r.find('tags') if x.get('type','').startswith('Define')]
  selector=next(x for x in defs if x.get('spriteId')=='243')

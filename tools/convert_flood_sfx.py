@@ -1,0 +1,25 @@
+"""One-shot sounds of the Flooded Castle (LEVEL23): the cannon, the Catfish's burp, the angry fish scene and the bat bite, as DS ADPCM in the chapter bank.
+The original names are s_Explosion3/4, s_CatBurp, s_ToadBlah1, s_SlimeHit3 and s_Chomp (the last is matched to the gator chomp file)."""
+from pathlib import Path
+import array,subprocess,json,hashlib
+from convert_audio import speaker_compress,normalize_and_encode,levels
+R=Path(__file__).resolve().parents[1]
+G=(Path(__import__('os').environ.get('CC_GAME_DIR','G:/SteamLibrary/steamapps/common/CastleCrashers'))/'data'/'sounds')
+RATE=8000
+SOUNDS=[('explosion3','sound_explosion_3.xma',0.9),('explosion4','sound_bigexplosion1.xma',1.1),('catburp','sound_catburp.xma',1.2),('toadblah','sound_emotoad_blah1.xma',0.8),('slimehit3','sound_slime_hit3.xma',0.5),('chomp','sound_gatorchomp.xma',0.5)]
+data=bytearray();table=[];report=[]
+for name,filename,seconds in SOUNDS:
+    source=G/filename
+    raw=subprocess.check_output([__import__('os').environ.get('FFMPEG','ffmpeg'),'-v','error','-i',str(source),'-vn','-ac','1','-ar',str(RATE),'-t',str(seconds),'-f','f32le','-'])
+    samples=[x*32768 for x in array.array('f',raw)]
+    encoded,decoded,gain=normalize_and_encode(speaker_compress(samples,RATE))
+    while len(data)%4:data.append(0)
+    table.append((len(data),len(encoded)));data.extend(encoded)
+    report.append({'cue':name,'source':filename,'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'bytes':len(encoded),'seconds':len(samples)/RATE,'decoded':levels(decoded)})
+while len(data)%4:data.append(0)
+h=['#ifndef FLOOD_SFX_H','#define FLOOD_SFX_H','#include <stdint.h>',f'#define FLOOD_SFX_RATE {RATE}','enum {'+','.join('FLOOD_SFX_'+n.upper() for n,_,_ in SOUNDS)+f',FLOOD_SFX_COUNT}};',
+   f'static const uint32_t flood_sfx_table[{len(table)}][2]={{'+','.join('{%d,%d}'%t for t in table)+'};',
+   f'static const uint8_t flood_sfx_data[{len(data)}]__attribute__((aligned(4)))={{']
+h.extend(','.join(map(str,data[i:i+32]))+',' for i in range(0,len(data),32));h.append('};');h.append('#endif')
+(R/'generated/flood_sfx.h').write_text(chr(10).join(h)+chr(10));(R/'generated/flood-sfx-manifest.json').write_text(json.dumps(report,indent=2))
+print(len(data),'bytes',[(r['cue'],r['bytes']) for r in report])

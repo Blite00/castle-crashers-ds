@@ -60,9 +60,9 @@ static inline int dash_attack_decode(unsigned sample,unsigned color,unsigned wea
 # Native reference hashes, independent complete source target images.
 bank=pickle.loads((R/'build/dash-attacks.pkl').read_bytes());out=bytearray()
 for c in range(4):
- for w in range(9):
+ for w in range(12):
   for k,n in enumerate(samples):
-   f=bank['meta'][(c*9+w)*24+n];raw=bank['raws'][(c*9+w)*24+n];_,x,y,ww,hh=f;bx,by,bw,bh=bounds[k];target=bytearray(bw*bh)
+   f=bank['meta'][(c*12+w)*24+n];raw=bank['raws'][(c*12+w)*24+n];_,x,y,ww,hh=f;bx,by,bw,bh=bounds[k];target=bytearray(bw*bh)
    for yy in range(hh):target[(y-by+yy)*bw+x-bx:(y-by+yy)*bw+x-bx+ww]=raw[yy*ww:(yy+1)*ww]
    hv=2166136261
    for v in target:hv=((hv^bank['palette'][v])*16777619)&0xffffffff

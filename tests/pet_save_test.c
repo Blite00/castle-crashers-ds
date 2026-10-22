@@ -42,7 +42,7 @@ int main(void){
     c.completed=2;campaign_save_capture(&c,0);assert(campaign_save_dirty()&&campaign_save_flush());
     assert(read_bank(0,bytes)==SAVE5);unsigned offset=12+48*2;
     assert(bytes[offset+12]==0&&bytes[offset+14]==24&&bytes[offset+15]==1);
-    assert(bytes[offset+16]==4&&bytes[offset+17]==2&&bytes[offset+18]==34&&bytes[offset+19]==1&&!bytes[offset+20]&&!bytes[offset+23]); /* pets 2, 9, 17, 21, 24 */
+    assert(bytes[offset+16]==76&&bytes[offset+17]==2&&bytes[offset+18]==35&&bytes[offset+19]==1&&!bytes[offset+20]&&!bytes[offset+23]); /* pets 2, 3, 6, 9, 16, 17, 21, 24 */
     assert(bytes[offset+24]==2&&!bytes[offset+25]);
     assert(bytes[offset+32]==(1|(1<<WEAPON_CARROT)|(1<<WEAPON_LEAF))&&!bytes[offset+33]&&!bytes[offset+36]&&!bytes[offset+47]);
     assert(campaign_save_open(prefix));assert(campaign_save_character(2)->pet==24&&campaign_save_character(2)->tools==1);

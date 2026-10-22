@@ -254,6 +254,18 @@ void campaign_boss_step(Campaign*c,Arena*a,const uint16_t keys[2]){
   for(int i=0;i<2&&c->phase==BOSS_PRINCESS;i++){Projectile*p=&a->shots[i];if(p->life&&p->kind==SHOT_ARROW&&p->z<100&&p->owner>=0&&p->owner<2&&abs(p->x-post.x)<20+abs(p->vx)&&abs(p->y-post.y)<20){c->spawned=p->owner;p->life=0;c->war.flags|=BOSS_RESCUED;phase(c,BOSS_RELEASE);}}
  }else if(c->phase==BOSS_RELEASE&&c->timer>=33)duel_start(c,a);
 }
+unsigned campaign_boss_intro_shake(const Campaign *c){
+    static const struct {uint16_t at,len;uint8_t amp;} cues[]={{47,9,3},{105,9,3},{124,9,3},{152,24,7}}; /* f_ScreenShake(0.3,6) three times, then (0.8,15) as the door falls */
+    if(c->phase!=BOSS_INTRO)return 0;
+    for(unsigned i=0;i<sizeof cues/sizeof *cues;i++)if(c->timer>=cues[i].at&&c->timer<cues[i].at+cues[i].len)return cues[i].amp;
+    return 0;
+}
+unsigned campaign_boss_intro_cue(unsigned after,unsigned now){
+    static const struct {uint16_t at;uint8_t id;} cues[]={{47,1},{84,2},{105,3},{124,3},{152,4},{160,1}};
+    unsigned best=0;
+    for(unsigned i=0;i<sizeof cues/sizeof *cues;i++)if(cues[i].at>after&&cues[i].at<=now&&(!best||cues[i].at<(best>>8)))best=((unsigned)cues[i].at<<8)|cues[i].id;
+    return best;
+}
 const char *campaign_boss_objective(const Campaign*c){
  switch(c->phase){case BOSS_INTRO:return "The Barbarian Boss";case BOSS_FIGHT:return "Defeat the Barbarian Boss";case BOSS_DEATH:return "The boss is defeated";case BOSS_TREASURE:return "Collect the treasure";case BOSS_PRINCESS:return "Cut the princess free";case BOSS_RELEASE:return "The princess is free";case BOSS_DUEL:return "Fight for the princess's kiss";case BOSS_KISS:return "The princess is rescued";default:return "Barbarian Boss complete";}
 }

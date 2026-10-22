@@ -40,6 +40,13 @@ typedef struct {
     uint8_t reserved[8];
 } CampaignPacket;
 _Static_assert(sizeof(CampaignPacket)==276,"Campaign radio budget");
+/* Flooded Castle (LEVEL23) host-only AI state, see campaign_flood.c. Slots index Campaign.enemies. */
+typedef struct {
+    uint8_t mode[6],timer[6],hits[6],seen[6],aux[6];
+    int16_t tx[6],ty[6];
+    uint8_t grab[2],chomp[2],stun,ball;
+    int16_t spit_x;
+} FloodState;
 typedef struct Campaign {
     uint8_t paused; /* Host pause, carried in snapshot running bit 1. */
     WarState war;
@@ -58,13 +65,14 @@ typedef struct Campaign {
     PetProfile pets[2];PetFollower pet_followers[2];uint8_t tools[2];
     uint8_t stats[2][4],menu_ack[2];
     uint8_t story_flags,potions[2],item_held[2],break_hp[16],break_hit_seq[16][2];
-    uint8_t owlet_state[2],owlet_timer[2],fruit_taken,mount_mask;uint16_t troll_timer[2]; /* mount_mask: enemy slots riding the LEVEL18 crocodile (wire: enemy flag 64). */ /* Host only: Owlet fetches fruit (LEVEL18 tree). */
+    uint8_t owlet_state[2],owlet_timer[2],fruit_taken,mount_mask;uint16_t troll_timer[2];uint8_t pet_timer[2]; /* mount_mask: enemy slots riding the LEVEL18 crocodile (wire: enemy flag 64). */ /* Host only: Owlet fetches fruit (LEVEL18 tree). */
     uint64_t completed; /* Level-clear bit set, one bit per level id (CONTENT_LEVEL_IDS). */
     uint8_t phase,group,spawned,kills,revive[2],drop_serial,npc_ticks;
     /* Post-level score tally (MAIN f_ScoreTally): per hero kills this level, and the xp and gold held when the level began. */
     uint32_t tally_xp0[2];uint16_t tally_gold0[2],level_kills[2],tally_ticks;uint8_t tally_valid;
     /* Crocodile mount (host only): ticks before a dismounted hero may mount again, and the jump onto the mount in progress. */
     uint8_t mount_cool[2],mount_arc[2];int16_t mount_from[2][2],mount_to[2][2];
+    FloodState flood;
 } Campaign;
 #define CAMPAIGN_TALLY_TICKS 360
 /* Values shown on a hero's score sign: kills, gold gained, experience gained. */
@@ -92,20 +100,20 @@ int campaign_world_enter(Campaign *c,Arena *a,unsigned node);
  * prerequisites for saves predating independent Home Castle progression. */
 static inline int campaign_world_unlocked(const Campaign *c,unsigned node){
 #ifdef LEVEL_SELECT_TEST
-    (void)c;return node<9;
+    (void)c;return node<10;
 #endif
-    return node<=1?1:node==2?!!(c->completed&15):node==3?!!(c->completed&7):node==4?!!(c->completed&6):node==5?!!(c->completed&4):node==6?!!(c->completed&16):node==7?!!(c->completed&32):node==8?!!(c->completed&64):0;
+    return node<=1?1:node==2?!!(c->completed&15):node==3?!!(c->completed&7):node==4?!!(c->completed&6):node==5?!!(c->completed&4):node==6?!!(c->completed&16):node==7?!!(c->completed&32):node==8?!!(c->completed&64):node==9?!!(c->completed&128):0;
 }
 int campaign_world_choose(Campaign *c,unsigned node);
 void campaign_world_tick(Campaign *c,Arena *a);
-#define CAMPAIGN_WORLD_NODES 9u
+#define CAMPAIGN_WORLD_NODES 10u
 /* Positions in the 672x320 map crop whose origin is original-map (128,864): Blacksmith, Home, Keep, War, Boss, Forest Entrance, Thieves' Forest, Mill Run (original node 22, at map (146,-235)), Flooded Castle (node 23 at (259,-378)). The crop starts 128 rows above the first one. */
-static const int16_t world_nodes[CAMPAIGN_WORLD_NODES][2]={{134,319},{219,310},{276,306},{401,315},{523,314},{645,241},{608,185},{457,170},{513,99}};
+static const int16_t world_nodes[CAMPAIGN_WORLD_NODES][2]={{134,319},{219,310},{276,306},{401,315},{523,314},{645,241},{608,185},{457,170},{513,99},{456,32}};
 /* The original map paths bend: Barbarian Boss to Forest Entrance through (593,185), Forest Entrance to Thieves' Forest through
    (628,92) and (611,74). Each bent link is a polyline of intermediate points, walked at two pixels per tick. */
-static const int16_t world_bends[2][2][2]={{{593,313},{-1,-1}},{{628,220},{611,202}}};
+static const int16_t world_bends[3][2][2]={{{593,313},{-1,-1}},{{628,220},{611,202}},{{446,75},{-1,-1}}};
 static inline int world_bend_set(unsigned from,unsigned to){
-    unsigned lo=from<to?from:to,hi=from<to?to:from;return lo==4&&hi==5?0:lo==5&&hi==6?1:-1;
+    unsigned lo=from<to?from:to,hi=from<to?to:from;return lo==4&&hi==5?0:lo==5&&hi==6?1:lo==8&&hi==9?2:-1;
 }
 static inline unsigned world_polyline(unsigned from,unsigned to,int pts[4][2]){
     unsigned n=0;pts[n][0]=world_nodes[from][0];pts[n][1]=world_nodes[from][1];n++;

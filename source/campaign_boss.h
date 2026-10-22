@@ -20,5 +20,9 @@ unsigned campaign_boss_buried_frame(const struct Campaign *campaign,unsigned her
 typedef struct {int16_t x,y;uint8_t kind,value,age;} BossGold;
 void campaign_boss_start(struct Campaign *c,Arena *a);
 void campaign_boss_step(struct Campaign *c,Arena *a,const uint16_t keys[2]);
+/* Gate scene of LEVEL7 sprite 202 (it starts with the knock at tick 35, clip frame f is tick f+33): f_ScreenShake and sound cues. The shake is in world units
+   for the camera; a cue is (tick<<8)|id with id 1 Ground2, 2 Roar2, 3 Explosion2, 4 Explosion3 (the first cue after tick `after` up to tick `now`), or 0. */
+unsigned campaign_boss_intro_shake(const struct Campaign *c);
+unsigned campaign_boss_intro_cue(unsigned after,unsigned now);
 const char *campaign_boss_objective(const struct Campaign *c);
 #endif
