@@ -3,6 +3,7 @@ assets/
 generated/
 nitrofiles/
 *.nds
+finished_rom/
 .game-install/
 releases/
 trailer/

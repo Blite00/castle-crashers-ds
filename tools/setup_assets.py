@@ -36,6 +36,7 @@ TOOLS = ROOT / 'tools'
 GENERATED = ROOT / 'generated'
 LOCAL_TOOLS = ROOT / '.tools'
 ROM = ROOT / 'castle-crashers-ds.nds'
+FINISHED = ROOT / 'finished_rom'      # the finished ROM is copied here for players
 STEAM_APP_ID = '204360'              # Castle Crashers on Steam.
 STEAM_DIR_NAME = 'CastleCrashers'
 
@@ -57,6 +58,10 @@ DECRYPTOR = TOOLS / 'vendor' / 'decrypt_asset.py'
 DECRYPTOR_COMMIT = 'fc59b55300b44d8beb53f2cfbb6bcad570e9ae09'
 DECRYPTOR_URL = f'https://raw.githubusercontent.com/ethteck/castlecrashers/{DECRYPTOR_COMMIT}/decrypt_asset.py'
 DECRYPTOR_SHA256 = '9d9d4da1b7d2825ee094232e7f75b9743d3ff566a29b1fbe56cbf7207b70df07'
+# On Windows the setup installs its own MSYS2 with the Wonderful toolchain's
+# BlocksDS into .tools/msys64 when no DS toolchain is found.
+MSYS2_URL = 'https://github.com/msys2/msys2-installer/releases/latest/download/msys2-base-x86_64-latest.sfx.exe'
+WONDERFUL_URL = 'https://wonderful.asie.pl/bootstrap/wf-bootstrap-windows-x86_64.tar.gz'
 PIP_PACKAGES = {'PIL': 'Pillow', 'numpy': 'numpy', 'blowfish': 'blowfish==0.6.1'}
 
 # Files the DS build needs; all must exist after the conversion.
@@ -205,8 +210,39 @@ def ensure_decryptor():
     DECRYPTOR.write_bytes(data)
 
 
+def winget_install(package, what):
+    """Windows: install a missing tool with winget. Returns False when winget is unavailable or fails."""
+    if os.name != 'nt' or not shutil.which('winget'):
+        return False
+    say(f'\n{what} is missing; installing it with winget ({package}). Windows may ask for permission.')
+    return subprocess.call(['winget', 'install', '-e', '--id', package, '--accept-package-agreements',
+                            '--accept-source-agreements', '--disable-interactivity']) == 0
+
+
+def find_installed(exe, patterns):
+    """Find a tool winget just installed (its folder is not on this window's PATH yet) and add it to PATH,
+    so this script and every conversion step can run it by name."""
+    import glob
+    for pattern in patterns:
+        for hit in sorted(glob.glob(os.path.expandvars(pattern)), reverse=True):
+            if Path(hit).is_file():
+                os.environ['PATH'] = str(Path(hit).parent) + os.pathsep + os.environ.get('PATH', '')
+                return shutil.which(exe) or hit
+    return None
+
+
+JAVA_PATTERNS = [r'%ProgramFiles%\Eclipse Adoptium\*\bin\java.exe', r'%LOCALAPPDATA%\Programs\Eclipse Adoptium\*\bin\java.exe',
+                 r'%ProgramFiles%\Java\*\bin\java.exe', r'%ProgramFiles%\Microsoft\jdk-*\bin\java.exe']
+FFMPEG_PATTERNS = [r'%LOCALAPPDATA%\Microsoft\WinGet\Links\ffmpeg.exe',
+                   r'%LOCALAPPDATA%\Microsoft\WinGet\Packages\Gyan.FFmpeg*\*\bin\ffmpeg.exe']
+
+
 def find_java():
     java = shutil.which('java')
+    if not java and os.name == 'nt':
+        java = find_installed('java', JAVA_PATTERNS)
+        if not java and winget_install('EclipseAdoptium.Temurin.21.JRE', 'Java'):
+            java = find_installed('java', JAVA_PATTERNS)
     if not java:
         fail('Java is needed to run JPEXS FFDec (the Flash renderer). Install a Java runtime 11 or newer, for example\n'
              '  Windows: winget install EclipseAdoptium.Temurin.21.JRE   macOS: brew install --cask temurin   '
@@ -249,12 +285,79 @@ def find_ffdec(explicit):
 
 def find_ffmpeg(explicit):
     ffmpeg = explicit or shutil.which('ffmpeg')
+    if not ffmpeg and os.name == 'nt':
+        ffmpeg = find_installed('ffmpeg', FFMPEG_PATTERNS)
+        if not ffmpeg and winget_install('Gyan.FFmpeg', 'ffmpeg'):
+            ffmpeg = find_installed('ffmpeg', FFMPEG_PATTERNS)
     if not ffmpeg:
         hint = ('winget install Gyan.FFmpeg' if os.name == 'nt' else
                 'brew install ffmpeg' if platform.system() == 'Darwin' else 'sudo apt install ffmpeg')
         fail(f'ffmpeg is needed to convert the music and sound effects. Install it (for example: {hint}), '
              'or pass --ffmpeg PATH.')
     return ffmpeg
+
+
+def msys_candidates():
+    roots = [ROOT.parent / '.tools' / 'msys64', LOCAL_TOOLS / 'msys64']
+    if os.environ.get('MSYS2_ROOT'):
+        roots.append(Path(os.environ['MSYS2_ROOT']))
+    return roots + [Path('C:/msys64')]
+
+
+def find_msys_blocksds():
+    """bash.exe of an MSYS2 that has BlocksDS (Wonderful toolchain) installed, or None."""
+    for msys in msys_candidates():
+        if (msys / 'usr/bin/bash.exe').is_file() and (msys / 'opt/wonderful/bin/wf-env').is_file() \
+                and (msys / 'opt/wonderful/thirdparty/blocksds/core').is_dir():
+            return msys / 'usr/bin/bash.exe'
+    return None
+
+
+def msys_run(bash, script, what):
+    env = dict(os.environ, MSYSTEM='UCRT64', CHERE_INVOKING='1')
+    if subprocess.call([str(bash), '-lc', script], cwd=str(ROOT), env=env) != 0:
+        fail(f'Installing the DS toolchain failed while {what} (see above). Run setup again to retry; '
+             f'delete {LOCAL_TOOLS / "msys64"} first if it keeps failing.')
+
+
+def docker_running():
+    return bool(shutil.which('docker')) and subprocess.call(
+        ['docker', 'info'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
+
+
+def ensure_windows_toolchain():
+    """Windows: install MSYS2 + BlocksDS into .tools/msys64 unless a DS toolchain is already there."""
+    if os.name != 'nt' or find_msys_blocksds() or os.environ.get('BLOCKSDS') or docker_running():
+        return
+    msys = LOCAL_TOOLS / 'msys64'
+    bash = msys / 'usr/bin/bash.exe'
+    say(f'\nNo Nintendo DS toolchain found. Installing BlocksDS into {msys}\n'
+        '(one time, about 1.5 GB; it stays inside this folder and does not touch the rest of your PC).')
+    if not bash.is_file():
+        LOCAL_TOOLS.mkdir(exist_ok=True)
+        sfx = LOCAL_TOOLS / 'msys2-base.sfx.exe'
+        sfx.write_bytes(download(MSYS2_URL, 'MSYS2 (a small Unix environment BlocksDS runs in)'))
+        if subprocess.call([str(sfx), '-y', '-o' + str(LOCAL_TOOLS)]) != 0 or not bash.is_file():
+            fail(f'Could not unpack MSYS2 into {LOCAL_TOOLS}.')
+        sfx.unlink()
+        msys_run(bash, 'true', 'setting up MSYS2')
+        # The first update may replace MSYS2's own core and stop early; the second finishes it.
+        subprocess.call([str(bash), '-lc', 'pacman -Syuu --noconfirm'], cwd=str(ROOT),
+                        env=dict(os.environ, MSYSTEM='UCRT64', CHERE_INVOKING='1'))
+        msys_run(bash, 'pacman -Syuu --noconfirm', 'updating MSYS2')
+    msys_run(bash, 'pacman -S --needed --noconfirm make tar curl mingw-w64-ucrt-x86_64-gcc',
+             'installing make and gcc')
+    msys_run(bash, 'set -e; if [ ! -x /opt/wonderful/bin/wf-pacman ] && [ ! -f /opt/wonderful/bin/wf-pacman.exe ]; then '
+             f'mkdir -p /opt/wonderful && curl -fL --retry 3 -o /tmp/wf-bootstrap.tar.gz {WONDERFUL_URL} && '
+             'tar xzf /tmp/wf-bootstrap.tar.gz -C /opt/wonderful && rm -f /tmp/wf-bootstrap.tar.gz; fi',
+             'downloading the Wonderful toolchain')
+    msys_run(bash, 'set -e; export PATH=/opt/wonderful/bin:$PATH; wf-pacman -Syu --noconfirm wf-tools && '
+             'wf-config repo enable blocksds && wf-pacman -Syu --noconfirm && '
+             'wf-pacman -S --needed --noconfirm blocksds-toolchain', 'installing BlocksDS')
+    if not find_msys_blocksds():
+        fail(f'BlocksDS did not end up in {msys}. Install it by hand (https://blocksds.skylyrac.net/docs/setup/windows/) '
+             'or install Docker, then run this again with --build-only.')
+    say('BlocksDS installed.')
 
 
 def check_host_compiler():
@@ -289,12 +392,7 @@ def run_pipeline(game, ffdec, ffmpeg, start):
 def build_rom():
     blocksds = os.environ.get('BLOCKSDS')
     wonderful = Path('/opt/wonderful/thirdparty/blocksds/core')
-    msys_bash = None
-    if os.name == 'nt':
-        for msys in (ROOT.parent / '.tools' / 'msys64', LOCAL_TOOLS / 'msys64', Path(os.environ.get('MSYS2_ROOT', 'C:/msys64'))):
-            if (msys / 'usr/bin/bash.exe').is_file() and (msys / 'opt/wonderful/bin/wf-env').is_file():
-                msys_bash = msys / 'usr/bin/bash.exe'
-                break
+    msys_bash = find_msys_blocksds() if os.name == 'nt' else None
     if msys_bash:
         say(f'Building with BlocksDS ({msys_bash.parents[2]}) ...')
         env = dict(os.environ, MSYSTEM='UCRT64', CHERE_INVOKING='1')
@@ -305,8 +403,7 @@ def build_rom():
             code = subprocess.call(['bash', '-lc', 'source /opt/wonderful/bin/wf-env && make -j2'], cwd=str(ROOT))
         else:
             code = subprocess.call(['make', '-j2'], cwd=str(ROOT))
-    elif shutil.which('docker') and subprocess.call(['docker', 'info'], stdout=subprocess.DEVNULL,
-                                                    stderr=subprocess.DEVNULL) == 0:
+    elif docker_running():
         say('Building inside the BlocksDS Docker image (the first run downloads it) ...')
         code = subprocess.call(['docker', 'run', '--rm', '-v', f'{ROOT}:/work', '-w', '/work',
                                 'skylyrac/blocksds:slim-latest', 'make', '-j2'])
@@ -322,8 +419,12 @@ def build_rom():
     if code != 0 or not ROM.is_file():
         fail('The DS build failed. See the compiler output above.')
     subprocess.call([sys.executable, str(TOOLS / 'check_memory_budget.py')], cwd=str(ROOT))
-    say(f'\nDone: {ROM}\nCopy it to your flashcart or open it in melonDS. It contains converted Castle Crashers '
-        'assets: keep it for yourself and do not share it.')
+    FINISHED.mkdir(exist_ok=True)
+    shutil.copy2(ROM, FINISHED / ROM.name)
+    bar = '=' * 72
+    say(f'\n{bar}\n  FINISHED! Your Castle Crashers DS ROM is ready:\n\n    {FINISHED / ROM.name}\n\n'
+        '  Copy it to your flashcart or open it in melonDS. It contains converted\n'
+        '  Castle Crashers assets: keep it for yourself and do not share it.\n' + bar)
     return True
 
 
@@ -337,6 +438,8 @@ def main():
     ap.add_argument('--resume', type=int, default=0, metavar='N', help='continue the conversion from step N')
     ap.add_argument('--no-build', action='store_true', help='convert assets only; do not build the ROM')
     ap.add_argument('--build-only', action='store_true', help='skip the conversion; build from existing assets')
+    ap.add_argument('--no-toolchain-install', action='store_true',
+                    help='Windows: do not install MSYS2/BlocksDS into .tools/ when no DS toolchain is found')
     ap.add_argument('--find', action='store_true', help='list Castle Crashers installs found on this computer and exit')
     args = ap.parse_args()
 
@@ -348,6 +451,8 @@ def main():
         missing = [f for f in REQUIRED_OUTPUTS if not (ROOT / f).is_file()]
         if missing:
             fail('Converted assets are missing (%s). Run without --build-only first.' % ', '.join(missing[:4]))
+        if not args.no_toolchain_install:
+            ensure_windows_toolchain()
         build_rom()
         return
 
@@ -374,6 +479,8 @@ def main():
     find_java()
     ffdec = find_ffdec(args.ffdec)
     ffmpeg = find_ffmpeg(args.ffmpeg)
+    if not args.no_toolchain_install:
+        ensure_windows_toolchain()  # before the long conversion; it also provides gcc
     check_host_compiler()
     ensure_decryptor()
     run_pipeline(game, ffdec, ffmpeg, args.resume)

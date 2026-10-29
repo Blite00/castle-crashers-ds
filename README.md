@@ -13,24 +13,26 @@ A from-scratch Nintendo DS engine (C, BlocksDS) that plays parts of **Castle Cra
 
 ## What you need
 
+**On Windows you only need the game:** `setup.bat` installs anything else that is missing (Python, Java and ffmpeg with winget, and the DS toolchain and C compiler into this folder). On macOS and Linux, install the tools below first.
+
 | | |
 |---|---|
 | **Castle Crashers** | Your own copy of the Steam (PC) release, installed. The setup only reads its `data/` folder; it never changes your game. |
-| **Python 3.9+** | [python.org](https://www.python.org/downloads/). The setup installs Pillow, NumPy and `blowfish` with pip if they are missing. |
-| **Java 11+** | Runs [JPEXS FFDec](https://github.com/jindrapetrik/jpexs-decompiler), which renders the Flash artwork. Windows: `winget install EclipseAdoptium.Temurin.21.JRE` · macOS: `brew install --cask temurin` · Linux: `sudo apt install default-jre`. The setup downloads FFDec 22.0.2 itself if you do not have it. |
-| **ffmpeg** | Converts the music and sound. Windows: `winget install Gyan.FFmpeg` · macOS: `brew install ffmpeg` · Linux: `sudo apt install ffmpeg` |
-| **A C compiler** | A few converters compile small helpers. Windows: [MSYS2](https://www.msys2.org/) with `pacman -S mingw-w64-ucrt-x86_64-gcc` · macOS: `xcode-select --install` · Linux: `gcc` |
-| **A DS toolchain** (to build the ROM) | [BlocksDS](https://blocksds.skylyrac.net/docs/setup/) **or** [Docker](https://www.docker.com/) (the setup then uses the `skylyrac/blocksds` image automatically). |
+| **Python 3.9+** | Windows: installed automatically · otherwise [python.org](https://www.python.org/downloads/). The setup installs Pillow, NumPy and `blowfish` with pip if they are missing. |
+| **Java 11+** | Runs [JPEXS FFDec](https://github.com/jindrapetrik/jpexs-decompiler), which renders the Flash artwork. Windows: installed automatically · macOS: `brew install --cask temurin` · Linux: `sudo apt install default-jre`. The setup downloads FFDec 22.0.2 itself if you do not have it. |
+| **ffmpeg** | Converts the music and sound. Windows: installed automatically · macOS: `brew install ffmpeg` · Linux: `sudo apt install ffmpeg` |
+| **A C compiler** | A few converters compile small helpers. Windows: installed automatically by the setup (see below) · macOS: `xcode-select --install` · Linux: `gcc` |
+| **A DS toolchain** (to build the ROM) | Windows: nothing to do. If none is found, the setup installs MSYS2 with [BlocksDS](https://blocksds.skylyrac.net/) into `.tools/msys64` inside this folder (one time, about 1.5 GB; skip with `--no-toolchain-install`). macOS / Linux: [BlocksDS](https://blocksds.skylyrac.net/docs/setup/) **or** [Docker](https://www.docker.com/) (the setup then uses the `skylyrac/blocksds` image automatically). |
 | **Internet, once** | The setup downloads FFDec and the archive extractor (see below). |
 
 ## Quick start
 
-1. Install Castle Crashers with Steam, and the tools above.
+1. Install Castle Crashers with Steam (on macOS / Linux also the tools above).
 2. Download this repository (green **Code** button → *Download ZIP*, or `git clone`).
 3. Run the setup:
    - **Windows:** double-click `setup.bat`
    - **macOS / Linux:** `./setup.sh`
-4. When it finishes you have **`castle-crashers-ds.nds`**. Copy it to your flashcart's microSD card or open it in [melonDS](https://melonds.kuribo64.net/).
+4. When it finishes it prints **FINISHED!** and the ROM is in the **`finished_rom`** folder (`finished_rom/castle-crashers-ds.nds`). Copy it to your flashcart's microSD card or open it in [melonDS](https://melonds.kuribo64.net/).
 
 The conversion renders several thousand Flash frames and takes a while (roughly an hour on a typical PC). If it stops, fix the cause and continue where it left off with `python tools/setup_assets.py --resume N` (the step number is printed).
 
